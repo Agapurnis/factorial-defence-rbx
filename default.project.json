@@ -1,0 +1,64 @@
+{
+	"name": "factorial defence",
+	"globIgnorePaths": ["ServerStorage/**/TestEnvironment.rbxlx"],
+	"tree": {
+		"$className": "DataModel",
+		"ServerScriptService": {
+			"$className": "ServerScriptService",
+			"TS": {
+				"$path": "out/ServerScriptService"
+			}
+		},
+		"ReplicatedStorage": {
+			"$className": "ReplicatedStorage",
+			"rbxts_include": {
+				"$path": "include",
+				"node_modules": {
+					"$path": "node_modules/@rbxts"
+				}
+			},
+			"TS": {
+				"$path": "out/ReplicatedStorage"
+			}
+		},
+		"ServerStorage": {
+			"$className": "ServerStorage",
+			"TS": {
+				"$path": "out/ServerStorage"
+			}
+		},
+		"StarterPlayer": {
+			"$className": "StarterPlayer",
+			"StarterPlayerScripts": {
+				"$className": "StarterPlayerScripts",
+				"TS": {
+					"$path": "out/StarterPlayer/StarterPlayerScripts"
+				}
+			},
+			"StarterCharacterScripts": {
+				"$className": "StarterCharacterScripts",
+				"TS": {
+					"$path": "out/StarterPlayer/StarterCharacterScripts"
+				}
+			}
+		},
+		"Workspace": {
+			"$className": "Workspace",
+			"$properties": {
+				"FilteringEnabled": true
+			}
+		},
+		"HttpService": {
+			"$className": "HttpService",
+			"$properties": {
+				"HttpEnabled": true
+			}
+		},
+		"SoundService": {
+			"$className": "SoundService",
+			"$properties": {
+				"RespectFilteringEnabled": true
+			}
+		}
+	}
+}

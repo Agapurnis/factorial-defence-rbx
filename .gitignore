@@ -1,0 +1,6 @@
+/node_modules
+/out
+/include
+*.tsbuildinfo
+**/.DS_Store
+**/TestEnvironment.rbxlx
