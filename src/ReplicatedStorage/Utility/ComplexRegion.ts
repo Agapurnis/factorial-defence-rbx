@@ -1,3 +1,8 @@
+/**
+ * Psuedo-'region'
+ *
+ * This is used to detect collisions within areas.
+ */
 export class ComplexRegion {
 	private readonly parts: Set<BasePart>;
 	private readonly checks: Set<BasePart>;

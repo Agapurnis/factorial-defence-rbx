@@ -31,6 +31,9 @@ export function RegisterItem <T extends ItemTraitEnum[] | []> (traits: T, id: st
 	return register as typeof register & ItemRegisterAssigned<T>;
 }
 
+/**
+ * Properties that are assigned to the register.
+ */
 type ItemRegisterAssigned <T extends ItemTraitEnum[]> = {
 	/**
 	 * Constant unique identifier for this item register.

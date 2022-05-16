@@ -4,6 +4,14 @@ import type { Conveyor } from "ReplicatedStorage/Data/Registers/Items/Traits/Con
 import type { Dropper } from "ReplicatedStorage/Data/Registers/Items/Traits/Dropper";
 import { Tag } from "ReplicatedStorage/Data/Enums/Tag";
 
+/**
+ * Adds basic functionality to a conveyor item.
+ *
+ * - Ensures `AssemblyLinearVelocity` is applied to the conveyor based on the item's speed (from it's register), and updates it whenever the orientation or cframe is adjusted.
+ *
+ * @param item - The item to add functionality to.
+ * @param _Item - The `Item` class constructor, used to assert that the item is a conveyor. This is injected to prevent cyclic dependencies.
+ */
 export function addConveyorFunctionality (item: Item<Conveyor & (Dropper | {})>, _Item: typeof Item) {
 	_Item.assertIsConveyor(item);
 
