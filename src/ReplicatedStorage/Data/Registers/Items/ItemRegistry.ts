@@ -17,6 +17,6 @@ export const ItemRegistry = ReplicatedStorage
 	}).reduce((acc, [id, register]) => {
 		if (acc[id]) throw `Duplicate item registry id: ${id}`;
 		acc[id] = register;
-		ItemRegisterList.push(register)
+		ItemRegisterList.push(register);
 		return acc;
 	}, {} as { [id: string]: ItemRegister<ItemTraitEnum[], ItemTrait> });

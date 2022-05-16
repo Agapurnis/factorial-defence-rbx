@@ -9,4 +9,4 @@ export const AgentCharlie = Agent.withUser({
 		[Currency.FREE]: 27500,
 		[Currency.PAID]: 0,
 	}
-})
+});

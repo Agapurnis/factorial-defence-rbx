@@ -4,4 +4,4 @@ import { InformBalanceUpdate } from "./Currency/InformBalanceUpdate";
 export const CurrencyNetworkingNamespaceName = "Currency";
 export const CurrencyNetworkingNamespace = new NetBuilder()
 	.BindDefinition(InformBalanceUpdate)
-	.AsNamespace()
+	.AsNamespace();

@@ -7,7 +7,7 @@ import { Result } from "@rbxts/rust-classes";
 const PLACEMENT_RAYCAST_PARAMETERS = new RaycastParams();
 PLACEMENT_RAYCAST_PARAMETERS.FilterDescendantsInstances = [];
 PLACEMENT_RAYCAST_PARAMETERS.FilterType = Enum.RaycastFilterType.Blacklist;
-PLACEMENT_RAYCAST_PARAMETERS.CollisionGroup = CollisionGroup.PlacementRaycast
+PLACEMENT_RAYCAST_PARAMETERS.CollisionGroup = CollisionGroup.PlacementRaycast;
 
 const mouse = LocalUser.player.GetMouse();
 
@@ -30,7 +30,7 @@ export function getTargetCFrameAdjusted (round: number | Vector3 = 0, angles = 0
 	if (!mouse) return Result.err(PlacementRaycastError.MOUSE_UNDEFINED);
 	if (getProhibitedScreenRegions().some((region) => mouse.X > region[0].X && mouse.X < region[1].X && mouse.Y > region[0].Y && mouse.Y < region[1].Y)) return Result.err(PlacementRaycastError.REGION_PROHIBITED);
 	PLACEMENT_RAYCAST_PARAMETERS.FilterDescendantsInstances = blacklist;
-	const ray = game.Workspace.CurrentCamera?.ScreenPointToRay(mouse.X, mouse.Y); if (!ray) return Result.err(PlacementRaycastError.RAY_UNDEFINED)
+	const ray = game.Workspace.CurrentCamera?.ScreenPointToRay(mouse.X, mouse.Y); if (!ray) return Result.err(PlacementRaycastError.RAY_UNDEFINED);
 	const hit = game.Workspace.Raycast(ray.Origin, ray.Direction.mul(500), PLACEMENT_RAYCAST_PARAMETERS);
 	PLACEMENT_RAYCAST_PARAMETERS.FilterDescendantsInstances = [];
 	if (!hit) return Result.err(PlacementRaycastError.HIT_UNDEFINED);

@@ -13,4 +13,4 @@ export const PlacementState: {
 	Degrees: 0,
 	Mode: PlacementStatus.Pick,
 	Move: new CFrame()
-}
+};

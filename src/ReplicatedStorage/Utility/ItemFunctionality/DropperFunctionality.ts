@@ -1,5 +1,5 @@
 import type { Item } from "ReplicatedStorage/Classes/Item";
-import { Dropper } from "ReplicatedStorage/Data/Registers/Items/Traits/Dropper";
+import type { Dropper } from "ReplicatedStorage/Data/Registers/Items/Traits/Dropper";
 
 export function addDropperFunctionality (item: Item<Dropper>, _Item: typeof Item) {
 	_Item.assertIsDropper(item);
@@ -14,7 +14,7 @@ export function addDropperFunctionality (item: Item<Dropper>, _Item: typeof Item
 		item.timer = item.register.timer!();
 		item.timer.completed.Connect(oncomplete);
 		item.timer.start();
-	}
+	};
 
 	item.timer!.completed.Connect(oncomplete);
 	item.timer!.start();

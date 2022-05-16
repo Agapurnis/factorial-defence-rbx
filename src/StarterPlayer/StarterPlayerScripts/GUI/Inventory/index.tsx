@@ -1,16 +1,15 @@
+import type { ItemTrait, ItemTraitEnum } from "ReplicatedStorage/Data/Registers/Items/ItemTrait";
+import type { ItemRegister } from "ReplicatedStorage/Data/Registers/Items/ItemRegister";
 import Roact from "@rbxts/roact";
 import Remotes from "ReplicatedStorage/Networking/Remotes";
-import type { ItemTrait, ItemTraitEnum } from "ReplicatedStorage/Data/Registers/Items/ItemTrait";
 import { Item } from "ReplicatedStorage/Classes/Item";
 import { LocalUser } from "StarterPlayer/StarterPlayerScripts/State";
 import { moveItem } from "StarterPlayer/StarterPlayerScripts/Placement/Actions/Move";
+import { GraphicsContext } from "../GraphicsContext";
 import { PlacementStatus } from "StarterPlayer/StarterPlayerScripts/Placement/PlacementStatus";
 import { PlacementState } from "StarterPlayer/StarterPlayerScripts/Placement/PlacementState";
 import { ComplexRegion } from "ReplicatedStorage/Utility/ComplexRegion";
-import { ItemRegister } from "ReplicatedStorage/Data/Registers/Items/ItemRegister";
-import { GraphicsContext } from "../GraphicsContext";
 import { ItemRegistry } from "ReplicatedStorage/Data/Registers/Items/ItemRegistry";
-import { getProhibitedScreenRegions, setProhibitedScreenRegion } from "StarterPlayer/StarterPlayerScripts/Placement/ProhibitedRanges";
 
 function placeItem (register: ItemRegister<ItemTraitEnum[], ItemTrait> ) {
 	if (PlacementState.Mode === PlacementStatus.Move) return;
@@ -22,11 +21,11 @@ function placeItem (register: ItemRegister<ItemTraitEnum[], ItemTrait> ) {
 	PlacementState.Item = item;
 	PlacementState.Mode = PlacementStatus.Move;
 	PlacementState.Degrees = math.deg(PlacementState.Item.model.GetPivot().ToEulerAnglesYXZ()[1]);
-	PlacementState.Region = new ComplexRegion(item.model, (part) => !(part.GetAttribute("DoesNotBlockPlacement") as boolean ?? false))
+	PlacementState.Region = new ComplexRegion(item.model, (part) => !(part.GetAttribute("DoesNotBlockPlacement") as boolean ?? false));
 	PlacementState.Item.setCollision(false);
 	PlacementState.Item.showPickup(true);
-	Remotes.Client.Item.MoveItem(PlacementState.Item.instanceID)
-	moveItem()
+	Remotes.Client.Item.MoveItem(PlacementState.Item.instanceID);
+	moveItem();
 }
 
 interface InventoryGUIProps { opened: boolean }
@@ -42,7 +41,7 @@ export class InventoryGUI extends Roact.Component<
 		this.setState({
 			opened: props.opened,
 			inventory: [],
-		})
+		});
 
 		task.spawn(() => {
 			Remotes.Client.Item.InformInventoryUpdate.Connect((updates) => {
@@ -54,13 +53,13 @@ export class InventoryGUI extends Roact.Component<
 						// @ts-ignore — We don't want it to show up in the UI, so get rid of it.
 						LocalUser.inventory.count[id] = undefined;
 					}
-				})
+				});
 				for (const [id, count] of pairs(LocalUser.inventory.count)) {
-					built.push([id, count])
+					built.push([id, count]);
 				}
-				this.setState({ inventory: built })
-			})
-		})
+				this.setState({ inventory: built });
+			});
+		});
 
 		GraphicsContext.Bind(["R"], () => {
 			this.setState({ opened: !this.state.opened });
@@ -87,7 +86,7 @@ export class InventoryGUI extends Roact.Component<
 				BackgroundTransparency={1}
 				Event={{
 					"MouseButton1Click": () => {
-						this.setState({ opened: false })
+						this.setState({ opened: false });
 					}
 				}}
 			/>

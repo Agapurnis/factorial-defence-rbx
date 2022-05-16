@@ -28,25 +28,25 @@ export = function () {
 				const request = placeItem(AgentCharlie.player, "non-existant-id", new CFrame());
 				expect(request.isErr()).to.equal(true);
 				const err = request.unwrapErr();
-				expect(err).to.equal(GenericError.NotFound)
-			})
+				expect(err).to.equal(GenericError.NotFound);
+			});
 
 			it("should reject if the item is not owned by the user", () => {
 				let instance: string; for (const [id] of pairs(AgentCharlie.user.inventory.items)) { instance = id; break; }
 				const request = placeItem(AgentDelta.player, instance!, new CFrame());
 				expect(request.isErr()).to.equal(true);
 				const err = request.unwrapErr();
-				expect(err).to.equal(GenericError.Forbidden)
-			})
+				expect(err).to.equal(GenericError.Forbidden);
+			});
 
 			it("should reject if the item is not in movement", () => {
 				let instance: string; let i = 0; for (const [id] of pairs(AgentDelta.user.inventory.items)) { if (i++ === 0) continue; instance = id; break; }
 				const request = placeItem(AgentDelta.player, instance!, new CFrame());
 				expect(request.isErr()).to.equal(true);
 				const err = request.unwrapErr();
-				expect(err).to.equal(GenericError.Invalid)
-			})
-		})
+				expect(err).to.equal(GenericError.Invalid);
+			});
+		});
 
 		describe("Invalid Positions", () => {
 			it("should reject if the position is not rounded to one stud", () => {
@@ -54,8 +54,8 @@ export = function () {
 				const request = placeItem(AgentCharlie.player, instance!, new CFrame(new Vector3(0.5, 0, 0)));
 				expect(request.isErr()).to.equal(true);
 				const err = request.unwrapErr();
-				expect(err).to.equal(GenericError.Invalid)
+				expect(err).to.equal(GenericError.Invalid);
 			});
-		})
-	})
-}
+		});
+	});
+};

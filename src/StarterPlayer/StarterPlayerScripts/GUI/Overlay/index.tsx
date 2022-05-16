@@ -1,6 +1,6 @@
 import Roact from "@rbxts/roact";
 
-export const MoneyDisplayBinding = Roact.createBinding(0)
+export const MoneyDisplayBinding = Roact.createBinding(0);
 export class OverlayGUI extends Roact.Component {
 	public render() {
 		return <frame

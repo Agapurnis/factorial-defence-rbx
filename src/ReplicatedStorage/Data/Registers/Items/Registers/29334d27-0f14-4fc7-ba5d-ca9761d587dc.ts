@@ -21,12 +21,12 @@ export = RegisterItem([ItemTraitEnum.DROPPER], "29334d27-0f14-4fc7-ba5d-ca9761d5
 		// TODO: Cache.
 		const origin = item.model.GetDescendants().filter((descendant) => CollectionService.HasTag(descendant, Tag.Dropper))[0] as Part;
 		const part = new Instance("Part");
-		part.Size = new Vector3(1, 1, 1)
+		part.Size = new Vector3(1, 1, 1);
 		part.Parent = game.Workspace;
-		part.Position = origin.Position.add(new Vector3(0, origin.Size.Y / 2, 0))
+		part.Position = origin.Position.add(new Vector3(0, origin.Size.Y / 2, 0));
 		return new Ore(part, item, {
 			[Currency.FREE]: 5,
 			[Currency.PAID]: 0,
-		})
+		});
 	}
-})
+});

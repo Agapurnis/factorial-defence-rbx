@@ -1,15 +1,15 @@
+import type { ItemTrait, ItemTraitEnum } from "ReplicatedStorage/Data/Registers/Items/ItemTrait";
+import type { ExchangeType } from "ReplicatedStorage/Data/Enums/ExchangeType";
 import type { Currency } from "ReplicatedStorage/Data/Enums/Currency";
+import type { Timer } from "@rbxts/timer";
 import { ReplicatedStorage } from "@rbxts/services";
-import { ItemTrait, ItemTraitEnum } from "ReplicatedStorage/Data/Registers/Items/ItemTrait";
-import { Timer } from "@rbxts/timer";
-import { ExchangeType } from "ReplicatedStorage/Data/Enums/ExchangeType";
 
-const Models: Record<string, Model> = {}
+const Models: Record<string, Model> = {};
 // #region Initial model collection.
 const workspaceChildren = game.Workspace.GetChildren();
 const replicatedModels = ReplicatedStorage.FindFirstChild("Models")!.FindFirstChild("Tycoon")!.GetChildren() as Model[];
-for (const model of replicatedModels)  { model.GetAttribute("ItemID") !== undefined && (Models[model.GetAttribute("ItemID") as string] = model) }
-for (const model of workspaceChildren) { model.GetAttribute("ItemID") !== undefined && (Models[model.GetAttribute("ItemID") as string] = model as Model) }
+for (const model of replicatedModels)  { model.GetAttribute("ItemID") !== undefined && (Models[model.GetAttribute("ItemID") as string] = model); }
+for (const model of workspaceChildren) { model.GetAttribute("ItemID") !== undefined && (Models[model.GetAttribute("ItemID") as string] = model as Model); }
 // #endregion Initial model collection.
 
 /**
@@ -23,7 +23,7 @@ for (const model of workspaceChildren) { model.GetAttribute("ItemID") !== undefi
  * can have dynamic behavior without having to store state
  * beyond what is already on the user or potential item instance itself.
  */
-export type ItemRegister <T extends ItemTraitEnum[], U extends ItemTrait> = ItemRegisterProvided<U> & ItemRegisterAssigned<T>
+export type ItemRegister <T extends ItemTraitEnum[], U extends ItemTrait> = ItemRegisterProvided<U> & ItemRegisterAssigned<T>;
 export function RegisterItem <T extends ItemTraitEnum[] | []> (traits: T, id: string, register: T extends [] ? ItemRegisterProvided<{}> : ItemRegisterProvided<ItemTrait<T[number]>>): typeof register & ItemRegisterAssigned<T> {
 	(register as typeof register & Writable<ItemRegisterAssigned<T>>).traits = traits;
 	(register as typeof register & Writable<ItemRegisterAssigned<T>>).model = Models[id];
@@ -48,7 +48,7 @@ type ItemRegisterAssigned <T extends ItemTraitEnum[]> = {
 	 *  - This should not be used directly, and should instead be cloned before any form of usage beyond reading.
 	 */
 	readonly model: Model
-}
+};
 
 type ItemRegisterProvided <T extends ItemTrait | {} = {}> = (T extends undefined ? {} : T extends never ? {} : T) & {
 	/**
@@ -67,6 +67,6 @@ type ItemRegisterProvided <T extends ItemTrait | {} = {}> = (T extends undefined
 	 * clock for an item and as a source of randomness.
 	 */
 	readonly timer?: () => Timer,
-}
+};
 
 

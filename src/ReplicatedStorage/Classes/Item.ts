@@ -5,17 +5,18 @@ import type { ItemRegister } from "ReplicatedStorage/Data/Registers/Items/ItemRe
 import type { ItemRepository } from "ServerScriptService/Networking/Implementations/Item/ItemRepository";
 import { ItemRegistry } from "ReplicatedStorage/Data/Registers/Items/ItemRegistry";
 import { CollectionService, HttpService, RunService, TweenService } from "@rbxts/services";
-import { ItemTrait, ItemTraitEnum } from "ReplicatedStorage/Data/Registers/Items/ItemTrait";
+import type { ItemTrait} from "ReplicatedStorage/Data/Registers/Items/ItemTrait";
+import { ItemTraitEnum } from "ReplicatedStorage/Data/Registers/Items/ItemTrait";
 import { addConveyorFunctionality } from "ReplicatedStorage/Utility/ItemFunctionality/ConveyorFunctionality";
 import { addDropperFunctionality } from "ReplicatedStorage/Utility/ItemFunctionality/DropperFunctionality";
 import { Option } from "@rbxts/rust-classes";
-import { $env } from "rbxts-transform-env"
-import { User } from "./User";
+import { $env } from "rbxts-transform-env";
+import type { User } from "./User";
 import { Tag } from "ReplicatedStorage/Data/Enums/Tag";
-import { Dropper } from "ReplicatedStorage/Data/Registers/Items/Traits/Dropper";
+import type { Dropper } from "ReplicatedStorage/Data/Registers/Items/Traits/Dropper";
 
-type UnwrapLuaTuple <T> = T extends LuaTuple<infer U> ? U : never
-type CFrameComponents = UnwrapLuaTuple<ReturnType<CFrame["GetComponents"]>>
+type UnwrapLuaTuple <T> = T extends LuaTuple<infer U> ? U : never;
+type CFrameComponents = UnwrapLuaTuple<ReturnType<CFrame["GetComponents"]>>;
 
 export interface ItemData {
 	user: number,
@@ -55,10 +56,10 @@ export class Item <
 	static isFurnace <T extends ItemTrait<ItemTraitEnum>> (item: Item<T>): item is Item<T & ItemTrait<ItemTraitEnum.FURNACE>> { return item.register.traits.includes(ItemTraitEnum.FURNACE); }
 	// #endregion Trait Narrow Methods
 	// #region Trait Assertion Methods
-	static assertIsConveyor <T extends ItemTrait<ItemTraitEnum>> (item: Item<T>): asserts item is Item<T & ItemTrait<ItemTraitEnum.CONVEYOR>> { if ($env<boolean>("PRODUCTION")) { return } else { assert(Item.isConveyor(item)) } }
-	static assertIsUpgrader <T extends ItemTrait<ItemTraitEnum>> (item: Item<T>): asserts item is Item<T & ItemTrait<ItemTraitEnum.UPGRADER>> { if ($env<boolean>("PRODUCTION")) { return } else { assert(Item.isUpgrader(item)) } }
-	static assertIsDropper <T extends ItemTrait<ItemTraitEnum>> (item: Item<T>): asserts item is Item<T & ItemTrait<ItemTraitEnum.DROPPER>> { if ($env<boolean>("PRODUCTION")) { return } else { assert(Item.isDropper(item)) } }
-	static assertIsFurnace <T extends ItemTrait<ItemTraitEnum>> (item: Item<T>): asserts item is Item<T & ItemTrait<ItemTraitEnum.FURNACE>> { if ($env<boolean>("PRODUCTION")) { return } else { assert(Item.isFurnace(item)) } }
+	static assertIsConveyor <T extends ItemTrait<ItemTraitEnum>> (item: Item<T>): asserts item is Item<T & ItemTrait<ItemTraitEnum.CONVEYOR>> { if ($env<boolean>("PRODUCTION")) { return; } else { assert(Item.isConveyor(item)); } }
+	static assertIsUpgrader <T extends ItemTrait<ItemTraitEnum>> (item: Item<T>): asserts item is Item<T & ItemTrait<ItemTraitEnum.UPGRADER>> { if ($env<boolean>("PRODUCTION")) { return; } else { assert(Item.isUpgrader(item)); } }
+	static assertIsDropper <T extends ItemTrait<ItemTraitEnum>> (item: Item<T>): asserts item is Item<T & ItemTrait<ItemTraitEnum.DROPPER>> { if ($env<boolean>("PRODUCTION")) { return; } else { assert(Item.isDropper(item)); } }
+	static assertIsFurnace <T extends ItemTrait<ItemTraitEnum>> (item: Item<T>): asserts item is Item<T & ItemTrait<ItemTraitEnum.FURNACE>> { if ($env<boolean>("PRODUCTION")) { return; } else { assert(Item.isFurnace(item)); } }
 	// #endregion Trait Assertion Methods
 
 	/**
@@ -76,7 +77,7 @@ export class Item <
 	/**
 	 * Whether or not to have functionality.
 	 */
-	public enabled = true
+	public enabled = true;
 
 	/**
 	 * The model of the item.
@@ -89,7 +90,7 @@ export class Item <
 	/**
 	 * The amount of loose and active ores that this dropper has dropped.
 	 */
-	public ores!: T extends Dropper ? Set<Ore> : undefined
+	public ores!: T extends Dropper ? Set<Ore> : undefined;
 
 	constructor (
 		/** Possessor of the item. */
@@ -106,7 +107,7 @@ export class Item <
 		this.model.SetAttribute("ItemID", this.registerID);
 		this.model.Parent = game.Workspace;
 		this.model.Name = name;
-		this.timer = this.register.timer?.()
+		this.timer = this.register.timer?.();
 
 		// This isn't a security issue if a check like this is bypassed on the client, as the server is still the source of truth. 
 		// This is just a way of preventing unnecessary computation on the client by calculating physics on both ends.
@@ -133,55 +134,55 @@ export class Item <
 					part.SetAttribute("PreviousCollisionState", part.CanCollide ? 1 : 0);
 				}
 				part.CanCollide = enabled;
-			})
+			});
 		} else {
 			this.model.GetDescendants().forEach((part) => {
 				if (!part.IsA("BasePart")) return;
-				part.CanCollide = part.GetAttribute("PreviousCollisionState") === undefined ? enabled : part.GetAttribute("PreviousCollisionState") === 1
+				part.CanCollide = part.GetAttribute("PreviousCollisionState") === undefined ? enabled : part.GetAttribute("PreviousCollisionState") === 1;
 				part.SetAttribute("PreviousCollisionState", undefined);
-			})
+			});
 		}
 	}
 
-	private pickupDisplayLoopConnection: Option<RBXScriptConnection> = Option.none()
+	private pickupDisplayLoopConnection: Option<RBXScriptConnection> = Option.none();
 
 	/**
 	 * Sets the display off pickup animation.
 	 * @param enabled - What state to toggle to.
 	 */
 	public showPickup (enabled: boolean) {
-		const pickupAffected = this.model.GetDescendants().filter((part) => CollectionService.HasTag(part, Tag.DisplayOnPickup))
+		const pickupAffected = this.model.GetDescendants().filter((part) => CollectionService.HasTag(part, Tag.DisplayOnPickup));
 
 		if (enabled === false) {
 			this.pickupDisplayLoopConnection.expect("tried to disable pickup effects on item without any!").Disconnect();
-			this.pickupDisplayLoopConnection = Option.none()
+			this.pickupDisplayLoopConnection = Option.none();
 
 			pickupAffected.forEach((part) => {
 				if (!part.IsA("Part") && !part.IsA("Texture")) return;
-				const tween = TweenService.Create(part, new TweenInfo(0.25), { Transparency: 1 })
+				const tween = TweenService.Create(part, new TweenInfo(0.25), { Transparency: 1 });
 				tween.Play();
 				tween.Completed.Connect(() => {
 					tween.Destroy();
-				})
-			})
+				});
+			});
 		} else {
 			pickupAffected.forEach((part) => {
 				if (!part.IsA("Part") && !part.IsA("Texture")) return;
-				const tween = TweenService.Create(part, new TweenInfo(0.25), { Transparency: 0 })
+				const tween = TweenService.Create(part, new TweenInfo(0.25), { Transparency: 0 });
 				tween.Play();
 				tween.Completed.Connect(() => {
 					tween.Destroy();
-				})
-			})
+				});
+			});
 
 			this.pickupDisplayLoopConnection = Option.some(RunService.Heartbeat.Connect(() => {
 				pickupAffected.forEach((part) => {
 					if (part.IsA("Texture")) {
-						part.OffsetStudsU += part.GetAttribute("OffsetStudsGrowthU") as number ?? 0
-						part.OffsetStudsV += part.GetAttribute("OffsetStudsGrowthV") as number ?? 0
+						part.OffsetStudsU += part.GetAttribute("OffsetStudsGrowthU") as number ?? 0;
+						part.OffsetStudsV += part.GetAttribute("OffsetStudsGrowthV") as number ?? 0;
 					}
-				})
-			}))
+				});
+			}));
 		}
 	}
 
@@ -193,7 +194,7 @@ export class Item <
 			enabled: this.enabled,
 			registerID: this.registerID,
 			instanceID: this.instanceID,
-		}
+		};
 	}
 
 	/**
@@ -217,7 +218,7 @@ export class Item <
 	public static Deserialize (owner: User, data: ItemData): Item {
 		const item = new Item(owner, data.registerID, data.instanceID);
 		item.enabled = data.enabled;
-		item.model.PivotTo(new CFrame(...data.cframe))
+		item.model.PivotTo(new CFrame(...data.cframe));
 		return item;
 	}
 	//#endregion Serde, Mut

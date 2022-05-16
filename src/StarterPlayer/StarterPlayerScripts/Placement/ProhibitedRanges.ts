@@ -1,6 +1,6 @@
 type ScreenRegion = [Vector2, Vector2];
 
-const ProhibitedScreenRegions: ScreenRegion[] = []
+const ProhibitedScreenRegions: ScreenRegion[] = [];
 const KeyLookup: Record<string, number> = {};
 
 function openIndex (): number {

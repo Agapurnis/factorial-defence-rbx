@@ -1,5 +1,5 @@
 import { NetBuilder, DefinitionBuilder } from "@rbxts/netbuilder";
-import { GenericError } from "ReplicatedStorage/Networking/Shared/GenericError";
+import type { GenericError } from "ReplicatedStorage/Networking/Shared/GenericError";
 import { Result } from "@rbxts/rust-classes";
 import { t } from "@rbxts/t";
 

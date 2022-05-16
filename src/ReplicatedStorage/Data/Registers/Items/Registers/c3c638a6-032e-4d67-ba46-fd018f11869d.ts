@@ -9,4 +9,4 @@ export = RegisterItem([], "c3c638a6-032e-4d67-ba46-fd018f11869d", {
 			[Currency.FREE]: 100,
 		}
 	},
-})
+});

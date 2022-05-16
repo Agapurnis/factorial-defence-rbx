@@ -1,4 +1,5 @@
-import { ChatSpeaker, GetLuaChatService } from "@rbxts/chat-service";
+import type { ChatSpeaker} from "@rbxts/chat-service";
+import { GetLuaChatService } from "@rbxts/chat-service";
 import { DEVELOPERS } from "../../ReplicatedStorage/Utility/UserRanks";
 import { Players } from "@rbxts/services";
 
