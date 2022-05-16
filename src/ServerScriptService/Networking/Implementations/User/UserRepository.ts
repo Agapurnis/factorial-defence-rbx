@@ -13,12 +13,12 @@ export const UserRepository = new class UserRepository {
 	/**
 	 * Cached users on the server, keyed by their player ID.
 	 */
-	private readonly cache = new Map<number, User>();
+	public readonly Cache = new Map<number, User>();
 
 	public get (player: Player): Option<User>;
 	public get (id: number): Option<User>;
 	public get (key: number | Player): Option<User> {
-		return Option.wrap(this.cache.get(identifier(key)));
+		return Option.wrap(this.Cache.get(identifier(key)));
 	}
 
 	/**
@@ -42,7 +42,7 @@ export const UserRepository = new class UserRepository {
 			}
 		}
 
-		this.cache.delete(player.UserId);
+		this.Cache.delete(player.UserId);
 
 		store.Set(undefined!);
 		store.Save();
@@ -54,7 +54,7 @@ export const UserRepository = new class UserRepository {
 	public has (player: Player): boolean;
 	public has (id: number): boolean;
 	public has (key: number | Player): boolean {
-		return this.cache.has(identifier(key));
+		return this.Cache.has(identifier(key));
 	}
 
 	public migrate (data: UserData): UserData {
@@ -70,13 +70,13 @@ export const UserRepository = new class UserRepository {
 	}
 
 	public forEach (callback: (user: User, index: number) => void): void {
-		this.cache.forEach(callback);
+		this.Cache.forEach(callback);
 	}
 
 	public set <T extends User> (player: Player, value: T): T;
 	public set <T extends User> (id: number, value: T): T;
 	public set <T extends User> (key: number | Player, value: T): T {
-		this.cache.set(identifier(key), value);
+		this.Cache.set(identifier(key), value);
 		return value;
 	}
 };

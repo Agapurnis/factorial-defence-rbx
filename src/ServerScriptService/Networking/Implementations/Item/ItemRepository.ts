@@ -5,30 +5,30 @@ export const ItemRepository = new class ItemRepository {
 	/**
 	 * Cached items on the server, keyed by their instance ID.
 	 */
-	private readonly cache = new Map<string, Item>();
+	public readonly Cache = new Map<string, Item>();
 	/**
 	 * Items instance IDs that are currently 'in movement'.
 	 *
 	 * If an item is not 'in movement', any placement requests are denied.
 	 * We keep track of this to make sure we don't have psuedo-items that aren't actually placed but are still active.
 	 */
-	public InMovement = new Set<string>();
+	public readonly InMovement = new Set<string>();
 
 
 	public get (id: string): Option<Item> {
-		return Option.wrap(this.cache.get(id));
+		return Option.wrap(this.Cache.get(id));
 	}
 
 	public delete (id: string): void {
-		this.cache.delete(id);
+		this.Cache.delete(id);
 	}
 
 	public has (id: string): boolean {
-		return this.cache.has(id);
+		return this.Cache.has(id);
 	}
 
 	public set <T extends Item> (id: string, value: T): T {
-		this.cache.set(id, value);
+		this.Cache.set(id, value);
 		return value;
 	}
 };
