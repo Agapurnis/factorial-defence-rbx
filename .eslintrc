@@ -23,6 +23,11 @@
 		"plugin:roblox-ts/recommended"
 	],
 	"rules": {
-		"@typescript-eslint/no-floating-promises": "off"
+		"@typescript-eslint/consistent-type-imports": "error",
+		"@typescript-eslint/no-floating-promises": "off",
+		"@typescript-eslint/prefer-readonly": "error",
+		"@typescript-eslint/semi": "error",
+		"linebreak-style": "error",
+		"eol-last": "error"
 	}
 }
