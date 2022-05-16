@@ -107,7 +107,10 @@ export class Ore {
 
 	public disabled = false;
 
-	private fade () {
+	/**
+	 * Slowly fade away the ore, and then destroy the part.
+	 */
+	public fade () {
 		if (this.disabled === true) return; // don't overlap tweens
 
 		const info = new TweenInfo(0.85, Enum.EasingStyle.Quad, Enum.EasingDirection.Out);
