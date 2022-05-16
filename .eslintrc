@@ -19,7 +19,10 @@
 	"extends": [
 		"eslint:recommended",
 		"plugin:@typescript-eslint/recommended",
+		"plugin:@typescript-eslint/recommended-requiring-type-checking",
 		"plugin:roblox-ts/recommended"
 	],
-	"rules": {}
+	"rules": {
+		"@typescript-eslint/no-floating-promises": "off"
+	}
 }
