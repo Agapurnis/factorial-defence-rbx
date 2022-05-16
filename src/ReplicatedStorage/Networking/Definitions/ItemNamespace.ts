@@ -14,4 +14,4 @@ export const ItemNetworkingNamespace = new NetBuilder()
 	.BindDefinition(CreateItem)
 	.BindDefinition(PlaceItem)
 	.BindDefinition(MoveItem)
-	.AsNamespace()
+	.AsNamespace();

@@ -4,12 +4,12 @@ import type { Dropper } from "ReplicatedStorage/Data/Registers/Items/Traits/Drop
 import { CollectionService, PhysicsService, TweenService } from "@rbxts/services";
 import { CollisionGroup } from "ReplicatedStorage/Data/Enums/CollisionGroup";
 import { Currency } from "ReplicatedStorage/Data/Enums/Currency";
-import { Item } from "./Item";
+import type { Item } from "./Item";
 import { Tag } from "ReplicatedStorage/Data/Enums/Tag";
 import Remotes from "ReplicatedStorage/Networking/Remotes";
 
 const billboardTemplate = new Instance("BillboardGui");
-const frame = new Instance("Frame")
+const frame = new Instance("Frame");
 const text = new Instance("TextLabel");
 text.BackgroundTransparency = 1;
 text.TextScaled = true;
@@ -21,12 +21,12 @@ frame.BackgroundTransparency = 1;
 frame.Parent = billboardTemplate;
 frame.Size = new UDim2(1, 0, 1, 0);
 billboardTemplate.Size = new UDim2(3, 0, 1, 0);
-billboardTemplate.StudsOffset = new Vector3(0, 2, 0)
+billboardTemplate.StudsOffset = new Vector3(0, 2, 0);
 
 /**
  * A record of what item upgraded an ore, and the UTC timestamp at which it occured.
  */
-type StampedUpgrade = [Item<Upgrader>, number]
+type StampedUpgrade = [Item<Upgrader>, number];
 
 /**
  * The `Ore` class represents exactly what you think.
@@ -52,7 +52,7 @@ export class Ore {
 		}
 	) {
 		CollectionService.AddTag(this.part, Tag.Ore);
-		this.addText()
+		this.addText();
 		this.updateText();
 		this.part.CollisionGroupId = PhysicsService.GetCollisionGroupId("Ore");
 		this.part.Touched.Connect((part) => {
@@ -61,7 +61,7 @@ export class Ore {
 				this.disabled = true;
 			} else if (CollectionService.HasTag(part, Tag.Furnace)) {
 				const user = from.user;
-				const item = user.inventory.items[part.Parent!.GetAttribute("InstanceID") as string] as unknown as Item<Furnace>
+				const item = user.inventory.items[part.Parent!.GetAttribute("InstanceID") as string] as unknown as Item<Furnace>;
 				if (!item.enabled || this.disabled) return;
 				item.register.sell(this, item, user);
 				Remotes.Server.Currency.InformUpdate.Send(user.player, user.money[Currency.FREE]);
@@ -69,7 +69,7 @@ export class Ore {
 				this.disabled = true;
 			} else if (CollectionService.HasTag(part, Tag.Upgrader)) {
 				const user = from.user;
-				const item = user.inventory.items[part.Parent!.GetAttribute("InstanceID") as string] as unknown as Item<Upgrader>
+				const item = user.inventory.items[part.Parent!.GetAttribute("InstanceID") as string] as unknown as Item<Upgrader>;
 				if (!item.enabled) return;
 				const stamp = [item, game.Workspace.GetServerTimeNow()] as StampedUpgrade;
 				this.upgrades.list.push(stamp);
@@ -81,9 +81,12 @@ export class Ore {
 				this.upgrades.reg.set(item.registerID, registerStamps);
 				this.upgrades.map.set(item.instanceID, instanceStamps);
 			}
-		})
+		});
 	}
 
+	/**
+	 * Updaate the display text of the GUI above the ore which contains it's current worth.
+	 */
 	public updateText () {
 		this.part
 			.FindFirstChildOfClass("BillboardGui")!
@@ -100,7 +103,7 @@ export class Ore {
 		list: [],
 		reg: new Map(),
 		map: new Map(),
-	}
+	};
 
 	public disabled = false;
 
@@ -115,11 +118,11 @@ export class Ore {
 		tween.Play();
 		tween.Completed.Connect(() => {
 			task.delay(0, () => {
-				CollectionService.RemoveTag(this.part, Tag.Ore)
-				this.part.Destroy()
+				CollectionService.RemoveTag(this.part, Tag.Ore);
+				this.part.Destroy();
 			});
 			tween.Destroy();
-		})
+		});
 	}
 
 	private addText () {

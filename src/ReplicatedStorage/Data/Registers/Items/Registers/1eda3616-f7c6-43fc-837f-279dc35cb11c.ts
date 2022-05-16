@@ -21,4 +21,4 @@ export = RegisterItem([ItemTraitEnum.CONVEYOR, ItemTraitEnum.UPGRADER], "1eda361
 		ore.worth[Currency.FREE] += 1;
 		ore.updateText();
 	}
-})
+});

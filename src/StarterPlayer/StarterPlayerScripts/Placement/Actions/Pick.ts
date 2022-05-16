@@ -1,9 +1,9 @@
+import type { Item } from "ReplicatedStorage/Classes/Item";
+import type { ItemModelAttributes, ItemModelTemplateAttributes } from "ReplicatedStorage/Utility/Attributes";
 import { LocalUser } from "StarterPlayer/StarterPlayerScripts/State";
 import { Option } from "@rbxts/rust-classes";
-import { Item } from "ReplicatedStorage/Classes/Item";
-import Attributes from "@rbxts/attributes"
+import Attributes from "@rbxts/attributes";
 import Remotes from "ReplicatedStorage/Networking/Remotes";
-import { ItemModelAttributes, ItemModelTemplateAttributes } from "ReplicatedStorage/Utility/Attributes";
 import { setSelectionBox, SelectionBoxType } from "../Utility/ItemMovementSelectionBox";
 import { getTargetCFrameAdjusted } from "../Utility/GetAdjustedTargetCFrame";
 import { PlacementState } from "../PlacementState";
@@ -23,24 +23,24 @@ export function pickItem (): boolean {
 			PlacementState.Item = item.unwrap();
 			PlacementState.Normal = normal;
 			const current = PlacementState.Item.model.GetPivot();
-			PlacementState.Region = new ComplexRegion(PlacementState.Item!.model, (part) => !(part.GetAttribute("DoesNotBlockPlacement") as boolean ?? false));
+			PlacementState.Region = new ComplexRegion(PlacementState.Item.model, (part) => !(part.GetAttribute("DoesNotBlockPlacement") as boolean ?? false));
 			PlacementState.Degrees = math.deg(PlacementState.Item.model.GetPivot().ToEulerAnglesYXZ()[1]);
 			PlacementState.Move = current;
-			proxy.Value = current
+			proxy.Value = current;
 
 			if (current.Position.sub(cframe.Position).Magnitude > 3.5) {
 				// It's a fair distance, so tween instead of jumping.
-				moveItem()
+				moveItem();
 			}
 
 			setSelectionBox(PlacementState.Item, SelectionBoxType.NORMAL);
-			Remotes.Client.Item.MoveItem(PlacementState.Item!.instanceID)
+			Remotes.Client.Item.MoveItem(PlacementState.Item.instanceID);
 			PlacementState.Item.setCollision(false);
 			PlacementState.Item.showPickup(true);
 		}
 
 		return exst;
-	}).unwrapOr(false)
+	}).unwrapOr(false);
 }
 
 

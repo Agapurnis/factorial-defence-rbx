@@ -10,4 +10,4 @@ export const UserNetworkingNamespace = new NetBuilder()
 	.BindDefinition(DeleteUser)
 	.BindDefinition(CreateUser)
 	.BindDefinition(LoadUser)
-	.AsNamespace()
+	.AsNamespace();

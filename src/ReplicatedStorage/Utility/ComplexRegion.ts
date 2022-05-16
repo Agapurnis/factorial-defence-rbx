@@ -1,3 +1,8 @@
+/**
+ * Psuedo-'region'
+ *
+ * This is used to detect collisions within areas.
+ */
 export class ComplexRegion {
 	private readonly parts: Set<BasePart>;
 	private readonly checks: Set<BasePart>;
@@ -7,7 +12,7 @@ export class ComplexRegion {
 		filter: (part: BasePart) => boolean = () => true,
 	) {
 		const parts = model.GetDescendants().filter((instance) => instance.IsA("BasePart")) as BasePart[];
-		this.parts = new Set(parts)
+		this.parts = new Set(parts);
 		this.checks = new Set(parts.filter(filter));
 	}
 

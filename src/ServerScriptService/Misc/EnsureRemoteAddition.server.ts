@@ -12,5 +12,5 @@ function patch (player: Player) {
 }
 
 Players.PlayerAdded.Connect((player) => {
-	patch(player)
-})
+	patch(player);
+});

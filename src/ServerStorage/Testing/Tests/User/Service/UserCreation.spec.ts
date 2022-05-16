@@ -8,7 +8,7 @@ import { AgentBeta } from "ServerStorage/Testing/Utility/Agents/Beta";
 export = function () {
 	describe("User Creation Successes", () => {
 		it("(#1) should successfully create a user", () => {
-			const agent = AgentAlpha
+			const agent = AgentAlpha;
 			const calld = createUser(agent.player).await();
 
 			expect(calld[0]).to.equal(true); if (!calld[0]) { return; /* ts */ }
@@ -17,10 +17,10 @@ export = function () {
 			const data = calld[1].unwrap();
 
 			expect(data).to.be.ok();
-		})
+		});
 
 		it("(#2) should successfully create a user", () => {
-			const agent = AgentBeta
+			const agent = AgentBeta;
 			const calld = createUser(agent.player).await();
 
 			expect(calld[0]).to.equal(true); if (!calld[0]) { return; /* ts */ }
@@ -29,12 +29,12 @@ export = function () {
 			const data = calld[1].unwrap();
 
 			expect(data).to.be.ok();
-		})
-	})
+		});
+	});
 
 	describe("Use Creation Rejects", () => {
 		it("(#1) should not create a user who already had an account", () => {
-			const agent = AgentAlpha
+			const agent = AgentAlpha;
 			const calld = createUser(agent.player).await();
 
 			expect(calld[0]).to.equal(true); if (!calld[0]) { return; /* ts */ }
@@ -42,11 +42,11 @@ export = function () {
 
 			const data = calld[1].unwrapErr();
 
-			expect(data).to.equal(GenericError.AlreadyExists)
-		})
+			expect(data).to.equal(GenericError.AlreadyExists);
+		});
 
 		it("(#2) should not create a user who already had an account", () => {
-			const agent = AgentBeta
+			const agent = AgentBeta;
 			const calld = createUser(agent.player).await();
 
 			expect(calld[0]).to.equal(true); if (!calld[0]) { return; /* ts */ }
@@ -54,7 +54,7 @@ export = function () {
 
 			const data = calld[1].unwrapErr();
 
-			expect(data).to.equal(GenericError.AlreadyExists)
-		})
-	})
-}
+			expect(data).to.equal(GenericError.AlreadyExists);
+		});
+	});
+};

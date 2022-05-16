@@ -1,4 +1,5 @@
-import { Item, ItemData } from "./Item";
+import type { ItemData } from "./Item";
+import { Item } from "./Item";
 import { PlacementBehavior } from "ReplicatedStorage/Data/Enums/Settings/PlacemodeBehavior";
 import { Currency } from "ReplicatedStorage/Data/Enums/Currency";
 
@@ -51,7 +52,7 @@ export class User {
 		placement: {
 			behavior: [PlacementBehavior.OFF_OF_TARGET, true]
 		}
-	}
+	};
 
 	/**
 	 * The items (both 'in storage' and 'active' the user possesses.
@@ -71,7 +72,7 @@ export class User {
 	} = {
 		count: {},
 		items: {},
-	}
+	};
 
 	/**
 	 * UTC timestamps (milliseconds, whole number) of when a user joined.
@@ -109,7 +110,7 @@ export class User {
 
 	// #region Serde, Mut
 	public serialize (): UserData {
-		const itemData: Record<string, ItemData> = {}
+		const itemData: Record<string, ItemData> = {};
 		for (const [id, item] of pairs(this.inventory.items)) {
 			itemData[id] = item.Serialize();
 		}
@@ -122,7 +123,7 @@ export class User {
 			settings: this.settings,
 			currency: this.money,
 			joined: this.joined,
-		}
+		};
 	}
 
 	/**
@@ -136,7 +137,7 @@ export class User {
 
 		for (const [id, item] of pairs(this.inventory.items)) {
 			if (data.inventory.items[id]) {
-				this.inventory.items[id] = item.update(data.inventory.items[id])
+				this.inventory.items[id] = item.update(data.inventory.items[id]);
 			} else {
 				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-ignore - Item was removed.
@@ -153,9 +154,9 @@ export class User {
 		into.money = data.currency;
 		into.inventory.count = data.inventory.count;
 		for (const [id, item] of pairs(data.inventory.items)) {
-			into.inventory.items[id] = Item.Deserialize(into, item)
+			into.inventory.items[id] = Item.Deserialize(into, item);
 		}
-		return into
+		return into;
 	}
 	// #endregion Serde, Mut
 }

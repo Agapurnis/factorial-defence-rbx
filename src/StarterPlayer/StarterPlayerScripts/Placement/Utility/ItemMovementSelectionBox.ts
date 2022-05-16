@@ -1,4 +1,4 @@
-import { Item } from "ReplicatedStorage/Classes/Item";
+import type { Item } from "ReplicatedStorage/Classes/Item";
 
 const STYLE_TRANSPARENCY_SURFACE = 0.92;
 const STYLE_TRANSPARENCY_BORDER  = 0.8;
@@ -34,14 +34,14 @@ export function setSelectionBox (item: Item, boxType: SelectionBoxType): Selecti
 function applySelectionBoxStyle (box: SelectionBox, boxType: SelectionBoxType): void {
 	switch (boxType) {
 		case SelectionBoxType.ERROR: {
-			box.Color3        = STYLE_COLOR_ERROR
-			box.SurfaceColor3 = STYLE_COLOR_ERROR
-			break
+			box.Color3        = STYLE_COLOR_ERROR;
+			box.SurfaceColor3 = STYLE_COLOR_ERROR;
+			break;
 		}
 		case SelectionBoxType.NORMAL: {
-			box.Color3        = STYLE_COLOR_OKAY
-			box.SurfaceColor3 = STYLE_COLOR_OKAY
-			break
+			box.Color3        = STYLE_COLOR_OKAY;
+			box.SurfaceColor3 = STYLE_COLOR_OKAY;
+			break;
 		}
 	}
 }

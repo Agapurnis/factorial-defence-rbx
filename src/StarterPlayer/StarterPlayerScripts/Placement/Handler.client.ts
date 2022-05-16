@@ -10,13 +10,13 @@ import { proxy } from "./PlacementProxy";
 const input = new Context();
 
 // Bind rotation events.
-input.Bind(["E"], () => { if (PlacementState.Mode === PlacementStatus.Move) { PlacementState.Degrees -= 90; moveItem() } });
-input.Bind(["Q"], () => { if (PlacementState.Mode === PlacementStatus.Move) { PlacementState.Degrees += 90; moveItem() } });
+input.Bind(["E"], () => { if (PlacementState.Mode === PlacementStatus.Move) { PlacementState.Degrees -= 90; moveItem(); } });
+input.Bind(["Q"], () => { if (PlacementState.Mode === PlacementStatus.Move) { PlacementState.Degrees += 90; moveItem(); } });
 
 // Add status toggler based on click events.
 input.Bind(["MouseButton1"], () => {
 	// A PlacementStatus of 'Lock' means that no interaction should be allowed for UX reasons.
-	if (PlacementState.Mode === PlacementStatus.Lock) return
+	if (PlacementState.Mode === PlacementStatus.Lock) return;
 	// Otherwise, cycle through.
 	else if (PlacementState.Mode === PlacementStatus.Move) { placeItem() && (PlacementState.Mode = PlacementStatus.Pick); }
 	else if (PlacementState.Mode === PlacementStatus.Pick) { pickItem()  && (PlacementState.Mode = PlacementStatus.Move);}
@@ -25,9 +25,9 @@ input.Bind(["MouseButton1"], () => {
 // Bind the main behavior for interactation.
 input.Bind(["MouseMovement"], () => {
 	// A PlacementStatus of 'Lock' means that no interaction should be allowed for UX reasons.
-	if (PlacementState.Mode === PlacementStatus.Lock) return
-	if (PlacementState.Mode === PlacementStatus.Move) moveItem()
-})
+	if (PlacementState.Mode === PlacementStatus.Lock) return;
+	if (PlacementState.Mode === PlacementStatus.Move) moveItem();
+});
 
 // We have a constant tween for the moving item.
 let tween: Tween;
@@ -36,12 +36,12 @@ RunService.Stepped.Connect(() => {
 	if (PlacementState.Mode !== PlacementStatus.Move) return;
 	if (PlacementState.Item === undefined) return;
 
-	tween?.Destroy()
+	tween?.Destroy();
 	tween = TweenService.Create(proxy, new TweenInfo(0.1, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
 		Value: PlacementState.Move
 	});
 
-	tween.Play()
+	tween.Play();
 });
 
 proxy.Changed.Connect(() => {

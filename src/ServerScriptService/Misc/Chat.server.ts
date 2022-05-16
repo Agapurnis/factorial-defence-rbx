@@ -1,9 +1,13 @@
-import { ChatSpeaker, GetLuaChatService } from "@rbxts/chat-service";
+import type { ChatSpeaker} from "@rbxts/chat-service";
+import { GetLuaChatService } from "@rbxts/chat-service";
 import { DEVELOPERS } from "../../ReplicatedStorage/Utility/UserRanks";
 import { Players } from "@rbxts/services";
 
 const ChatService = GetLuaChatService();
 
+/**
+ * Applies various hard-coded chat cosmetics.
+ */
 function applyCosmetics (speaker: ChatSpeaker, name: string): void {
 	if (DEVELOPERS.includes(Players.GetPlayers().find((p) => p.Name === name)?.UserId ?? 0)) {
 		speaker.SetExtraData("Tags", [{ TagText: "Dev", TagColor: Color3.fromRGB(214, 135, 250) }]);

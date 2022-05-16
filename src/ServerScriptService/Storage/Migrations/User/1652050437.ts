@@ -21,6 +21,6 @@ export = function (previous: Previous): Migrated {
 	(current as unknown as Partial<Migrated>).inventory = {
 		items,
 		count
-	}
-	return current as unknown as Migrated
-}
+	};
+	return current as unknown as Migrated;
+};
