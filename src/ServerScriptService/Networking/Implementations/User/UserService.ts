@@ -10,6 +10,12 @@ import { UserStoreKey, UserStores } from "ServerScriptService/Storage/UserStore"
 import { ItemRepository } from "../Item/ItemRepository";
 import { UserRepository } from "./UserRepository";
 
+/**
+ * Attempts to create a `User` for the given player.
+ * This will fail if there is already a `User` associated with the player.
+ *
+ * @param player - PLayer to create the item for.
+ */
 export async function createUser (player: Player): Promise<Result<UserData, GenericError>> {
 	const store = DataStore2<UserData>(UserStoreKey, player);
 
@@ -28,7 +34,12 @@ export async function createUser (player: Player): Promise<Result<UserData, Gene
 	});
 }
 
+/**
+ * Attempts to delete the user of the given player.
+ * @param player - The player to delete the user of.
+ */
 export function deleteUser (player: Player): boolean {
+	// Ensure there actually is a user for the player.
 	const store = UserStores.get(player.UserId) ?? DataStore2<UserData>(UserStoreKey, player); if (!store) return false;
 	const user = UserRepository.get(player.UserId); if (user.isNone()) return false;
 
@@ -48,6 +59,10 @@ export function deleteUser (player: Player): boolean {
 	return true;
 }
 
+/**
+ * Attempts to load and return the user data for the given player.
+ * @param player - Player of whom to load the user for.
+ */
 export async function loadUser (player: Player): Promise<Result<UserData, GenericError | LoadUserError>> {
 	if (UserRepository.has(player.UserId)) {
 		// We already have the user cached, so just return it.
