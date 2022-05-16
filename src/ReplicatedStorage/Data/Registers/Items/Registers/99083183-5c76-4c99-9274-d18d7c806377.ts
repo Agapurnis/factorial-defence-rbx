@@ -15,4 +15,4 @@ export = RegisterItem([ItemTraitEnum.FURNACE], "99083183-5c76-4c99-9274-d18d7c80
 			[Currency.FREE]: 1,
 		}
 	},
-})
+});

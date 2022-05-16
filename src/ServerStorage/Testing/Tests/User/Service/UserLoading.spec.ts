@@ -8,7 +8,7 @@ import { loadUser } from "ServerScriptService/Networking/Implementations/User/Us
 export = function () {
 	describe("User Load Successes", () => {
 		it("should successfully load a user", () => {
-			const agent = AgentAlpha
+			const agent = AgentAlpha;
 			const calld = loadUser(agent.player).await();
 
 			expect(calld[0] === true); if (!calld[0]) { return; /* ts */ }
@@ -17,12 +17,12 @@ export = function () {
 			const data = calld[1].unwrap();
 
 			expect(data).to.be.ok();
-		})
-	})
+		});
+	});
 
 	describe("User Load Rejects", () => {
 		it("should reject if a user does not exist", () => {
-			const agent = AgentBeta
+			const agent = AgentBeta;
 			const calld = loadUser(agent.player).await();
 
 			expect(calld[0] === true); if (!calld[0]) { return; /* ts */ }
@@ -30,7 +30,7 @@ export = function () {
 
 			const data = calld[1].unwrapErr();
 
-			expect(data).to.equal(GenericError.NotFound)
-		})
-	})
-}
+			expect(data).to.equal(GenericError.NotFound);
+		});
+	});
+};

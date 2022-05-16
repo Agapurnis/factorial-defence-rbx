@@ -19,7 +19,15 @@
 	"extends": [
 		"eslint:recommended",
 		"plugin:@typescript-eslint/recommended",
+		"plugin:@typescript-eslint/recommended-requiring-type-checking",
 		"plugin:roblox-ts/recommended"
 	],
-	"rules": {}
+	"rules": {
+		"@typescript-eslint/consistent-type-imports": "error",
+		"@typescript-eslint/no-floating-promises": "off",
+		"@typescript-eslint/prefer-readonly": "error",
+		"@typescript-eslint/semi": "error",
+		"linebreak-style": "error",
+		"eol-last": "error"
+	}
 }

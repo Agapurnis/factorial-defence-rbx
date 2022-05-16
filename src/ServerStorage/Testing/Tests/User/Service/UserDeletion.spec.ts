@@ -6,21 +6,19 @@ import { AgentBeta } from "ServerStorage/Testing/Utility/Agents/Beta";
 export = function () {
 	describe("User Deletion Successes", () => {
 		it("should successfully create a user", () => {
-			const agent = AgentBeta
-			const calld = deleteUser(agent.player).await();
+			const agent = AgentBeta;
+			const calld = deleteUser(agent.player);
 
-			expect(calld[0] === false);
-			expect(calld[1] === true)
-		})
-	})
+			expect(calld === false);
+		});
+	});
 
 	describe("User Deletion Rejects", () => {
 		it("should not delete a user who does not have an account", () => {
-			const agent = AgentBeta
-			const calld = deleteUser(agent.player).await();
+			const agent = AgentBeta;
+			const calld = deleteUser(agent.player);
 
-			expect(calld[0] === false);
-			expect(calld[1] === false)
-		})
-	})
-}
+			expect(calld === false);
+		});
+	});
+};

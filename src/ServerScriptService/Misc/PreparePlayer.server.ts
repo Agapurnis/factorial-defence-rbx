@@ -8,10 +8,10 @@ function markCharacter (character: Model) {
 		if (descendant.IsA("BasePart")) {
 			descendant.CollisionGroupId = id;
 		}
-	})
+	});
 }
 
 Players.PlayerAdded.Connect((player) => {
 	if (player.Character) markCharacter(player.Character);
 	player.CharacterAppearanceLoaded.Connect(markCharacter);
-})
+});

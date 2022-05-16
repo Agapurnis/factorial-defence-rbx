@@ -10,4 +10,4 @@ export const AgentDelta = Agent.withUser({
 		[Currency.FREE]: 2000,
 		[Currency.PAID]: 0,
 	}
-})
+});

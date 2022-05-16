@@ -14,4 +14,4 @@ export = RegisterItem([ItemTraitEnum.CONVEYOR], "dfc958ba-4027-4ffa-a520-13bbefd
 			[Currency.FREE]: 10,
 		}
 	},
-})
+});

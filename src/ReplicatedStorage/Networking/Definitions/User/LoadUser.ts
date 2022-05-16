@@ -1,7 +1,7 @@
 import { NetBuilder, DefinitionBuilder } from "@rbxts/netbuilder";
-import { GenericError } from "ReplicatedStorage/Networking/Shared/GenericError";
-import { $terrify } from "rbxts-transformer-t"
-import { UserData } from "ReplicatedStorage/Classes/User";
+import type { GenericError } from "ReplicatedStorage/Networking/Shared/GenericError";
+import { $terrify } from "rbxts-transformer-t";
+import type { UserData } from "ReplicatedStorage/Classes/User";
 import { Result } from "@rbxts/rust-classes";
 
 export const enum LoadUserError {

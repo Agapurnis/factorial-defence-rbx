@@ -10,12 +10,12 @@ export const enum ItemTraitEnum {
 	CONVEYOR = "CONVEYOR", // moves ores
 }
 
-export type ItemTrait <T extends ItemTraitEnum = ItemTraitEnum> = ItemTraitLookup[T]
+export type ItemTrait <T extends ItemTraitEnum = ItemTraitEnum> = ItemTraitLookup[T];
 export type ItemTraitLookup = {
 	[ItemTraitEnum.DROPPER]: Dropper,
 	[ItemTraitEnum.FURNACE]: Furnace,
 	[ItemTraitEnum.UPGRADER]: Upgrader,
 	[ItemTraitEnum.CONVEYOR]: Conveyor,
-}
+};
 
 

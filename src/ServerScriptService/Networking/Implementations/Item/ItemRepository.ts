@@ -1,11 +1,11 @@
 import { Option } from "@rbxts/rust-classes";
-import { Item } from "ReplicatedStorage/Classes/Item";
+import type { Item } from "ReplicatedStorage/Classes/Item";
 
 export const ItemRepository = new class ItemRepository {
 	/**
 	 * Cached items on the server, keyed by their instance ID.
 	 */
-	private cache = new Map<string, Item>();
+	private readonly cache = new Map<string, Item>();
 	/**
 	 * Items instance IDs that are currently 'in movement'.
 	 *
@@ -16,7 +16,7 @@ export const ItemRepository = new class ItemRepository {
 
 
 	public get (id: string): Option<Item> {
-		return Option.wrap(this.cache.get(id))
+		return Option.wrap(this.cache.get(id));
 	}
 
 	public delete (id: string): void {
@@ -31,4 +31,4 @@ export const ItemRepository = new class ItemRepository {
 		this.cache.set(id, value);
 		return value;
 	}
-}
+};

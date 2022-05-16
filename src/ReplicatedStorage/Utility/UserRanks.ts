@@ -2,4 +2,4 @@ export const DEVELOPERS = [
 	45782276,
 	55921236,
 	369107091,
-]
+];

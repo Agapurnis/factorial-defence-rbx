@@ -1,7 +1,7 @@
 import { NetBuilder, DefinitionBuilder } from "@rbxts/netbuilder";
-import { GenericError } from "ReplicatedStorage/Networking/Shared/GenericError";
+import type { GenericError } from "ReplicatedStorage/Networking/Shared/GenericError";
 import { Result } from "@rbxts/rust-classes";
-import { ItemData } from "ReplicatedStorage/Classes/Item";
+import type { ItemData } from "ReplicatedStorage/Classes/Item";
 import { t } from "@rbxts/t";
 import { $terrify } from "rbxts-transformer-t";
 

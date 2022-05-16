@@ -1,4 +1,4 @@
 import { DefinitionBuilder } from "@rbxts/netbuilder";
-import { t } from "@rbxts/t"
+import { t } from "@rbxts/t";
 
-export const InformBalanceUpdate = new DefinitionBuilder("InformUpdate").SetArguments(t.number).Build()
+export const InformBalanceUpdate = new DefinitionBuilder("InformUpdate").SetArguments(t.number).Build();

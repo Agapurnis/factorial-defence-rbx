@@ -8,15 +8,15 @@ Players.PlayerRemoving.Connect((player) => {
 
 	if (user) {
 		for (const [id, item] of pairs(user.inventory.items)) {
-			item.timer?.destroy()
-			ItemRepository.delete(id)
-			item.model.Destroy()
-			item.ores?.forEach((ore) => ore.part.Destroy())
+			item.timer?.destroy();
+			ItemRepository.delete(id);
+			item.model.Destroy();
+			item.ores?.forEach((ore) => ore.part.Destroy());
 		}
 
 		UserRepository.delete(player.UserId);
 	}
 
-	UserStores.get(player.UserId)?.Save()
-	UserStores.delete(player.UserId)
-})
+	UserStores.get(player.UserId)?.Save();
+	UserStores.delete(player.UserId);
+});

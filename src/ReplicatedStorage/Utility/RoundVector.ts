@@ -17,6 +17,6 @@ export function roundvec (vec: Vector3, round: Vector3 | number) {
 			math.round(vec.X / round.X) * round.X,
 			math.round(vec.Y / round.Y) * round.Y,
 			math.round(vec.Z / round.Z) * round.Z
-		)
+		);
 	}
 }

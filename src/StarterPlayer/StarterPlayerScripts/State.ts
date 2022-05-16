@@ -6,7 +6,7 @@ import Remotes from "ReplicatedStorage/Networking/Remotes";
 
 function getUser () {
 	const data = Remotes.Client.User.LoadUser.Call().unwrapOrElse(() => Remotes.Client.User.CreateUser.Call().expect("Could neither retrieve nor create user!"));
-	const user = User.Deserialize(Players.LocalPlayer, data)
+	const user = User.Deserialize(Players.LocalPlayer, data);
 
 	MoneyDisplayBinding[1](user.money[Currency.FREE]);
 

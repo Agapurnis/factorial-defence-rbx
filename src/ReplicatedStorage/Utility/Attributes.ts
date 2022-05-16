@@ -1,4 +1,4 @@
-export type ItemModelTemplateAttributes = Omit<ItemModelAttributes, "InstanceID">
+export type ItemModelTemplateAttributes = Omit<ItemModelAttributes, "InstanceID">;
 
 export interface ItemModelAttributes {
 	/**

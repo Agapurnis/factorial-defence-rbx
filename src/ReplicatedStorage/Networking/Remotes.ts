@@ -7,5 +7,4 @@ export default new NetBuilder()
 	.BindNamespace(CurrencyNetworkingNamespaceName, CurrencyNetworkingNamespace)
 	.BindNamespace(UserNetworkingNamespaceName, UserNetworkingNamespace)
 	.BindNamespace(ItemNetworkingNamespaceName, ItemNetworkingNamespace)
-	.Build()
-
+	.Build();

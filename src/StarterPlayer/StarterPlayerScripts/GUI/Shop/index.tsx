@@ -6,12 +6,12 @@ import { ItemPurchaseError } from "ReplicatedStorage/Networking/Definitions/Item
 import { ItemRegisterList } from "ReplicatedStorage/Data/Registers/Items/ItemRegistry";
 import { PlacementStatus } from "StarterPlayer/StarterPlayerScripts/Placement/PlacementStatus";
 import { PlacementState } from "StarterPlayer/StarterPlayerScripts/Placement/PlacementState";
-import { ItemRegister } from "ReplicatedStorage/Data/Registers/Items/ItemRegister";
+import type { ItemRegister } from "ReplicatedStorage/Data/Registers/Items/ItemRegister";
 import { GraphicsContext } from "../GraphicsContext";
 import { RenderCamera } from "../RenderCamera";
 import Log from "@rbxts/log";
 
-const Previews: Record<string, Model> = {}
+const Previews: Record<string, Model> = {};
 
 function buyItem (input: InputObject, register: ItemRegister<ItemTraitEnum[], ItemTrait>): void {
 	if (input.UserInputType !== Enum.UserInputType.MouseButton1) return;
@@ -38,7 +38,7 @@ export class ShopGUI extends Roact.Component<
 
 		this.setState({
 			opened: props.opened,
-		})
+		});
 
 		GraphicsContext.Bind(["F"], () => {
 			this.setState({ opened: !this.state.opened });
@@ -66,7 +66,7 @@ export class ShopGUI extends Roact.Component<
 				BackgroundTransparency={1}
 				Event={{
 					"MouseButton1Click": () => {
-						this.setState({ opened: false })
+						this.setState({ opened: false });
 					}
 				}}
 			/>
@@ -83,13 +83,13 @@ export class ShopGUI extends Roact.Component<
 					const reference = Roact.createRef<ViewportFrame>();
 
 					task.defer(() => {
-						while (!reference.getValue()) { task.wait() }
+						while (!reference.getValue()) { task.wait(); }
 						if (Previews[register.id]) return;
 						const preview = register.model.Clone();
-						preview.PivotTo(new CFrame(0, -1 * (preview.GetBoundingBox()[1].Y / 4), 0))
+						preview.PivotTo(new CFrame(0, -1 * (preview.GetBoundingBox()[1].Y / 4), 0));
 						preview.Parent = reference.getValue();
 						Previews[register.id] = preview;
-					})
+					});
 
 					let i = 0;
 
@@ -106,10 +106,10 @@ export class ShopGUI extends Roact.Component<
 									i = 0;
 									active = false;
 									task.defer(() => {
-										if (spinthread) task.cancel(spinthread)
+										if (spinthread) task.cancel(spinthread);
 										if (!Previews[register.id]) return;
 										const piv = Previews[register.id].GetPivot();
-										const pos = new CFrame(piv.Position)
+										const pos = new CFrame(piv.Position);
 										Previews[register.id].PivotTo(pos);
 									});
 									spinthread = undefined;
@@ -122,16 +122,16 @@ export class ShopGUI extends Roact.Component<
 										// eslint-disable-next-line no-constant-condition
 										while (active) {
 											task.wait();
-											if (!reference.getValue()) continue; i++
+											if (!reference.getValue()) continue; i++;
 											const piv = Previews[register.id].GetPivot();
-											const pos = new CFrame(piv.Position)
-											Previews[register.id].PivotTo(pos.mul(CFrame.fromEulerAnglesYXZ(0, math.rad(i), 0)))
+											const pos = new CFrame(piv.Position);
+											Previews[register.id].PivotTo(pos.mul(CFrame.fromEulerAnglesYXZ(0, math.rad(i), 0)));
 										}
-									})
+									});
 								}
 							}}
 						/>
-					)
+					);
 				})}
 			</scrollingframe>
 		</frame>;
