@@ -5,11 +5,11 @@ import Remotes from "ReplicatedStorage/Networking/Remotes";
 import { Item } from "ReplicatedStorage/Classes/Item";
 import { LocalUser } from "StarterPlayer/StarterPlayerScripts/State";
 import { moveItem } from "StarterPlayer/StarterPlayerScripts/Placement/Actions/Move";
-import { GraphicsContext } from "../GraphicsContext";
 import { PlacementStatus } from "StarterPlayer/StarterPlayerScripts/Placement/PlacementStatus";
 import { PlacementState } from "StarterPlayer/StarterPlayerScripts/Placement/PlacementState";
 import { ComplexRegion } from "ReplicatedStorage/Utility/ComplexRegion";
 import { ItemRegistry } from "ReplicatedStorage/Data/Registers/Items/ItemRegistry";
+import { GraphicsState } from "../GraphicsState";
 
 function placeItem (register: ItemRegister<ItemTraitEnum[], ItemTrait> ) {
 	if (PlacementState.Mode === PlacementStatus.Move) return;
@@ -61,7 +61,7 @@ export class InventoryGUI extends Roact.Component<
 			});
 		});
 
-		GraphicsContext.Bind(["R"], () => {
+		GraphicsState.input.Bind(["R"], () => {
 			this.setState({ opened: !this.state.opened });
 		});
 	}

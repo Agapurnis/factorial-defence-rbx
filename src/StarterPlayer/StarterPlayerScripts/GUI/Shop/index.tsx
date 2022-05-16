@@ -7,9 +7,10 @@ import { ItemRegisterList } from "ReplicatedStorage/Data/Registers/Items/ItemReg
 import { PlacementStatus } from "StarterPlayer/StarterPlayerScripts/Placement/PlacementStatus";
 import { PlacementState } from "StarterPlayer/StarterPlayerScripts/Placement/PlacementState";
 import type { ItemRegister } from "ReplicatedStorage/Data/Registers/Items/ItemRegister";
-import { GraphicsContext } from "../GraphicsContext";
+import { GraphicsState } from "../GraphicsState";
 import { RenderCamera } from "../RenderCamera";
 import Log from "@rbxts/log";
+import { GraphicsSelected } from "../GraphicsSelected";
 
 const Previews: Record<string, Model> = {};
 
@@ -40,7 +41,7 @@ export class ShopGUI extends Roact.Component<
 			opened: props.opened,
 		});
 
-		GraphicsContext.Bind(["F"], () => {
+		GraphicsState.input.Bind(["F"], () => {
 			this.setState({ opened: !this.state.opened });
 		});
 	}
@@ -106,11 +107,16 @@ export class ShopGUI extends Roact.Component<
 									i = 0;
 									active = false;
 									task.defer(() => {
+										GraphicsState.item = "NONE";
+										GraphicsState.over = "NONE";
 										if (spinthread) task.cancel(spinthread);
 										if (!Previews[register.id]) return;
 										const piv = Previews[register.id].GetPivot();
 										const pos = new CFrame(piv.Position);
 										Previews[register.id].PivotTo(pos);
+										task.wait();
+										GraphicsState.item = "NONE";
+										GraphicsState.over = "NONE";
 									});
 									spinthread = undefined;
 								},
@@ -126,6 +132,8 @@ export class ShopGUI extends Roact.Component<
 											const piv = Previews[register.id].GetPivot();
 											const pos = new CFrame(piv.Position);
 											Previews[register.id].PivotTo(pos.mul(CFrame.fromEulerAnglesYXZ(0, math.rad(i), 0)));
+											GraphicsState.item = register;
+											GraphicsState.over = GraphicsSelected.SHOP;
 										}
 									});
 								}
