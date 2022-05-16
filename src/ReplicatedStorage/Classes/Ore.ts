@@ -52,6 +52,7 @@ export class Ore {
 		}
 	) {
 		CollectionService.AddTag(this.part, Tag.Ore);
+		from.user.active += 1;
 		this.addText();
 		this.updateText();
 		this.part.CollisionGroupId = PhysicsService.GetCollisionGroupId("Ore");
@@ -122,6 +123,7 @@ export class Ore {
 		tween.Completed.Connect(() => {
 			task.delay(0, () => {
 				CollectionService.RemoveTag(this.part, Tag.Ore);
+				this.from.user.active -= 1;
 				this.part.Destroy();
 			});
 			tween.Destroy();

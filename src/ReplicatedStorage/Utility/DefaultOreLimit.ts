@@ -1,0 +1,1 @@
+export const DEFAULT_BASE_ORE_LIMIT = 250;

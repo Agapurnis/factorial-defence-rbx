@@ -13,8 +13,9 @@ export function addDropperFunctionality (item: Item<Dropper>, _Item: typeof Item
 	_Item.assertIsDropper(item);
 
 	const oncomplete = () => {
-		if (item.enabled) {
+		if (item.enabled && item.user.limit > item.user.active) {
 			_Item.assertIsDropper(item);
+
 			item.ores.add(item.register.drop(item));
 		}
 

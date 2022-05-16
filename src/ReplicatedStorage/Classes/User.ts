@@ -2,6 +2,7 @@ import type { ItemData } from "./Item";
 import { Item } from "./Item";
 import { PlacementBehavior } from "ReplicatedStorage/Data/Enums/Settings/PlacemodeBehavior";
 import { Currency } from "ReplicatedStorage/Data/Enums/Currency";
+import { DEFAULT_BASE_ORE_LIMIT } from "ReplicatedStorage/Utility/DefaultOreLimit";
 
 /**
  * Underlying serialized data of a user.
@@ -16,6 +17,7 @@ export interface UserData {
 	}
 	currency: Record<string, number>;
 	joined: [ever: number, latest: number, migration?: number]
+	limit: number,
 }
 
 export interface CustomUserSettings {
@@ -86,6 +88,15 @@ export class User {
 	public joined: [ever: number, latest: number, migration?: number];
 
 	/**
+	 * How much active ore this user is permitted to have at one moment in time.
+	 */
+	public limit = DEFAULT_BASE_ORE_LIMIT;
+	/**
+	 * How many active ores the user currently has.
+	 */
+	public active = 0;
+
+	/**
 	 * How much of each type of currency a user has.
 	 */
 	public money: Record<Currency, number> = {
@@ -123,6 +134,7 @@ export class User {
 			settings: this.settings,
 			currency: this.money,
 			joined: this.joined,
+			limit: this.limit,
 		};
 	}
 
@@ -134,6 +146,7 @@ export class User {
 		this.settings = data.settings;
 		this.joined = data.joined;
 		this.money = data.currency;
+		this.limit = data.limit;
 
 		for (const [id, item] of pairs(this.inventory.items)) {
 			if (data.inventory.items[id]) {
@@ -152,6 +165,7 @@ export class User {
 		into.settings = data.settings;
 		into.joined = data.joined;
 		into.money = data.currency;
+		into.limit = data.limit;
 		into.inventory.count = data.inventory.count;
 		for (const [id, item] of pairs(data.inventory.items)) {
 			into.inventory.items[id] = Item.Deserialize(into, item);
