@@ -18,6 +18,11 @@ import type { Dropper } from "ReplicatedStorage/Data/Registers/Items/Traits/Drop
 type UnwrapLuaTuple <T> = T extends LuaTuple<infer U> ? U : never;
 type CFrameComponents = UnwrapLuaTuple<ReturnType<CFrame["GetComponents"]>>;
 
+/**
+ * Underlying serialized data of an item.
+ *
+ * Used for tranmission and storage.
+ */
 export interface ItemData {
 	user: number,
 	cframe: CFrameComponents,
@@ -25,7 +30,6 @@ export interface ItemData {
 	registerID: string,
 	instanceID: string,
 }
-
 
 /**
  * The `Item` class is a representation of an 'active' item *instance*.
@@ -109,7 +113,7 @@ export class Item <
 		this.model.Name = name;
 		this.timer = this.register.timer?.();
 
-		// This isn't a security issue if a check like this is bypassed on the client, as the server is still the source of truth. 
+		// This isn't a security issue if a check like this is bypassed on the client, as the server is still the source of truth.
 		// This is just a way of preventing unnecessary computation on the client by calculating physics on both ends.
 		if (!user.inventory.items[this.instanceID] && RunService.IsServer()) {
 			if (Item.isDropper(this))  addDropperFunctionality(this, Item);
@@ -144,6 +148,9 @@ export class Item <
 		}
 	}
 
+	/**
+	 * The connection to the pickup looping animation script.
+	 */
 	private pickupDisplayLoopConnection: Option<RBXScriptConnection> = Option.none();
 
 	/**

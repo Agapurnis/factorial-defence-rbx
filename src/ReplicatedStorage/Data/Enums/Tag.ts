@@ -1,3 +1,6 @@
+/**
+ * Tags used with `CollectionService`
+ */
 export const enum Tag {
 	Ore = "Ore",
 	Furnace = "Furnace",

@@ -84,6 +84,9 @@ export class Ore {
 		});
 	}
 
+	/**
+	 * Updaate the display text of the GUI above the ore which contains it's current worth.
+	 */
 	public updateText () {
 		this.part
 			.FindFirstChildOfClass("BillboardGui")!

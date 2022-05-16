@@ -3,6 +3,8 @@ import { UserRepository } from "ServerScriptService/Networking/Implementations/U
 import { UserStores } from "ServerScriptService/Storage/UserStore";
 import { Players } from "@rbxts/services";
 
+// Ensure the removal of references to the user to prevent memory leakage.`
+
 Players.PlayerRemoving.Connect((player) => {
 	const user = UserRepository.get(player.UserId).expect("user to exist");
 

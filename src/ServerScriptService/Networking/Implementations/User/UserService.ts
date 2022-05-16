@@ -14,6 +14,7 @@ export async function createUser (player: Player): Promise<Result<UserData, Gene
 	const store = DataStore2<UserData>(UserStoreKey, player);
 
 	return store.GetAsync().then<Result<UserData, GenericError>>((value) => {
+		// If there is already a present value, bail to prevent creating two users.
 		if (!typeIs(value, "nil")) return Result.err(GenericError.AlreadyExists);
 
 		const user = new User(player);
@@ -53,6 +54,7 @@ export async function loadUser (player: Player): Promise<Result<UserData, Generi
 		return UserRepository.get(player.UserId).map((u) => u.serialize()).okOrElse(() => GenericError.NotFound);
 	}
 
+	// Create a store connection and save it for future usage.
 	const store = UserStores.get(player.UserId) || DataStore2<UserData>(UserStoreKey, player);
 	if (!store) return Result.err(GenericError.UnknownInternalServiceError);
 	UserStores.set(player.UserId, store);
@@ -60,8 +62,8 @@ export async function loadUser (player: Player): Promise<Result<UserData, Generi
 	return store.GetAsync().then<Result<UserData, GenericError | LoadUserError>>((data) => {
 		if (!data) return Result.err(GenericError.NotFound);
 		if (data.joined[1] > ServerCreatedTimestamp) {
-			// This user is using a schema above that of what the server supports.
-			// This shouldn't happen in ideal cases, but it's best to be safe.
+			// This user is using a scheme that is newer than what the server can support.
+			// This ideally should not happen, but it's best to be safe.
 			return Result.err(LoadUserError.OutdatedServer);
 		}
 
@@ -73,12 +75,12 @@ export async function loadUser (player: Player): Promise<Result<UserData, Generi
 			ItemRepository.set(id, item);
 		}
 
-		// Populate inventory GUI with contents of inventory.
+		// Build contents of inventory into an array and inform the inventory GUI of it's contents.
 		const built: [string, number][] = [];
 		for (const [id, count] of pairs(user.inventory.count)) built.push([id, count]);
 		Remotes.Server.Item.InformInventoryUpdate.Send(player, built);
 
-		// Reserialize because we might have made mutations.
+		// Reserialize because changes may have been made during potential data migrations.
 		return Result.ok(user.serialize());
 	}).catch((err) => {
 		warn(err);
