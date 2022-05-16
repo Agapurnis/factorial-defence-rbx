@@ -8,4 +8,3 @@ export default new NetBuilder()
 	.BindNamespace(UserNetworkingNamespaceName, UserNetworkingNamespace)
 	.BindNamespace(ItemNetworkingNamespaceName, ItemNetworkingNamespace)
 	.Build()
-

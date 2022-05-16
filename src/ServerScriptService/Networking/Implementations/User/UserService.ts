@@ -10,26 +10,23 @@ import { ItemRepository } from "../Item/ItemRepository";
 import { UserRepository } from "./UserRepository";
 
 export async function createUser (player: Player): Promise<Result<UserData, GenericError>> {
-	return new Promise((resolve) => {
-		const store = DataStore2<UserData>(UserStoreKey, player);
+	const store = DataStore2<UserData>(UserStoreKey, player);
 
-		return store.GetAsync().then((value) => {
-			if (!typeIs(value, "nil"))
-				return resolve(Result.err(GenericError.AlreadyExists));
+	return store.GetAsync().then<Result<UserData, GenericError>>((value) => {
+		if (!typeIs(value, "nil")) return Result.err(GenericError.AlreadyExists);
 
-			const user = new User(player);
-			const data = user.serialize();
-			store.Set(data);
-			UserRepository.set(player.UserId, user);
-			return resolve(Result.ok(data));
-		}).catch((err) => {
-			warn(err)
-			return resolve(Result.err(GenericError.DataStoreFailure));
-		})
+		const user = new User(player);
+		const data = user.serialize();
+		store.Set(data);
+		UserRepository.set(player.UserId, user);
+		return Result.ok(data);
+	}).catch((err) => {
+		warn(err)
+		return Result.err(GenericError.DataStoreFailure);
 	})
 }
 
-export async function deleteUser (player: Player): Promise<boolean> {
+export function deleteUser (player: Player): boolean {
 	const store = UserStores.get(player.UserId) ?? DataStore2<UserData>(UserStoreKey, player); if (!store) return false;
 	const user = UserRepository.get(player.UserId); if (user.isNone()) return false;
 
@@ -50,45 +47,40 @@ export async function deleteUser (player: Player): Promise<boolean> {
 }
 
 export async function loadUser (player: Player): Promise<Result<UserData, GenericError | LoadUserError>> {
-	return new Promise<Result<UserData, GenericError | LoadUserError>>((resolve) => {
-		if (UserRepository.has(player.UserId)) {
-			// We already have the user cached, so just return it.
-			return resolve(UserRepository.get(player.UserId).map((u) => u.serialize()).okOrElse(() => GenericError.NotFound));
+	if (UserRepository.has(player.UserId)) {
+		// We already have the user cached, so just return it.
+		return UserRepository.get(player.UserId).map((u) => u.serialize()).okOrElse(() => GenericError.NotFound);
+	}
+
+	const store = UserStores.get(player.UserId) || DataStore2<UserData>(UserStoreKey, player);
+	if (!store) return Result.err(GenericError.UnknownInternalServiceError);
+	UserStores.set(player.UserId, store);
+
+	return store.GetAsync().then<Result<UserData, GenericError | LoadUserError>>((data) => {
+		if (!data) return Result.err(GenericError.NotFound)
+		if (data.joined[1] > ServerCreatedTimestamp) {
+			// This user is using a schema above that of what the server supports.
+			// This shouldn't happen in ideal cases, but it's best to be safe.
+			return Result.err(LoadUserError.OutdatedServer)
 		}
 
-		const store = UserStores.get(player.UserId) || DataStore2<UserData>(UserStoreKey, player);
-		if (!store) return resolve(Result.err(GenericError.UnknownInternalServiceError));
-		UserStores.set(player.UserId, store);
+		const user = User.Deserialize(player, UserRepository.migrate(data));
 
-		return store.GetAsync().then((data) => {
-			if (!data) {
-				return resolve(Result.err(GenericError.NotFound));
-			}
+		UserRepository.set(player.UserId, user);
 
-			if (data.joined[1] > ServerCreatedTimestamp) {
-				// This user is using a schema above that of what the server supports.
-				// This shouldn't happen in ideal cases, but it's best to be safe.
-				return resolve(Result.err(LoadUserError.OutdatedServer))
-			}
+		for (const [id, item] of pairs(user.inventory.items)) {
+			ItemRepository.set(id, item)
+		}
 
-			const user = User.Deserialize(player, UserRepository.migrate(data));
+		// Populate inventory GUI with contents of inventory.
+		const built: [string, number][] = [];
+		for (const [id, count] of pairs(user.inventory.count)) built.push([id, count])
+		Remotes.Server.Item.InformInventoryUpdate.Send(player, built);
 
-			UserRepository.set(player.UserId, user);
-
-			for (const [id, item] of pairs(user.inventory.items)) {
-				ItemRepository.set(id, item)
-			}
-
-			// Populate inventory GUI with contents of inventory.
-			const built: [string, number][] = [];
-			for (const [id, count] of pairs(user.inventory.count)) built.push([id, count])
-			Remotes.Server.Item.InformInventoryUpdate.Send(player, built);
-
-			// Reserialize because we might have made mutations.
-			return resolve(Result.ok(user.serialize()));
-		}).catch((err) => {
-			warn(err)
-			return resolve(Result.err(GenericError.DataStoreFailure));
-		})
+		// Reserialize because we might have made mutations.
+		return Result.ok(user.serialize());
+	}).catch((err) => {
+		warn(err)
+		return Result.err(GenericError.DataStoreFailure);
 	})
 }

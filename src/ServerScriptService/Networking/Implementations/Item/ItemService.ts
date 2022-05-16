@@ -13,7 +13,7 @@ import { UserStores } from "ServerScriptService/Storage/UserStore";
 import { Tag } from "ReplicatedStorage/Data/Enums/Tag";
 import { ExchangeType } from "ReplicatedStorage/Data/Enums/ExchangeType";
 
-export async function createItem (player: Player, register: string): Promise<Result<ItemData, GenericError>> {
+export function createItem (player: Player, register: string): Result<ItemData, GenericError> {
 	const user = UserRepository.get(player);
 	if ((user.isNone() === true)) return Result.err(GenericError.NotFound);
 	if ((user.unwrap().inventory.count[register]) === undefined) return Result.err(GenericError.NotFound);
@@ -29,7 +29,7 @@ export async function createItem (player: Player, register: string): Promise<Res
 	return Result.ok(item.Serialize())
 }
 
-export async function purchaseItem (player: Player, register: string): Promise<Result<true, GenericError | ItemPurchaseError>> {
+export function purchaseItem (player: Player, register: string): Result<true, GenericError | ItemPurchaseError> {
 	const user = UserRepository.get(player);
 	const item = ItemRegistry[register]
 	if (item === undefined) return Result.err(GenericError.NotFound)
@@ -48,7 +48,7 @@ export async function purchaseItem (player: Player, register: string): Promise<R
 	return Result.ok(true)
 }
 
-export async function placeItem (player: Player, id: string, cframe: CFrame): Promise<Result<true, GenericError>> {
+export function placeItem (player: Player, id: string, cframe: CFrame): Result<true, GenericError> {
 	if (!ItemRepository.has(id)) return Result.err(GenericError.NotFound);
 	if (!ItemRepository.InMovement.has(id)) return Result.err(GenericError.Invalid);
 
@@ -57,7 +57,7 @@ export async function placeItem (player: Player, id: string, cframe: CFrame): Pr
 	if (item.user.player.UserId !== player.UserId)
 		return Result.err(GenericError.Forbidden);
 
-	const previous = item.model!.GetPivot()
+	const previous = item.model.GetPivot()
 	const overlap = new OverlapParams();
 	overlap.FilterDescendantsInstances = [game.Workspace.FindFirstChild("Baseplate") as Instance];
 	overlap.FilterType = Enum.RaycastFilterType.Blacklist;
@@ -91,7 +91,7 @@ export async function placeItem (player: Player, id: string, cframe: CFrame): Pr
 	return Result.ok(true)
 }
 
-export async function moveItem (player: Player, id: string): Promise<Result<true, GenericError>> {
+export function moveItem (player: Player, id: string): Result<true, GenericError> {
 	const item = ItemRepository.get(id);
 	if (item.isNone()) return Result.err(GenericError.NotFound);
 	if (item.unwrap().user.player.UserId !== player.UserId) return Result.err(GenericError.Forbidden);

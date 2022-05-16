@@ -10,9 +10,8 @@ export = function () {
 	describe("Item Movement Successes", () => {
 		it("should successfully set the item to be in movement", () => {
 			let instance: string; for (const [id] of pairs(AgentCharlie.user.inventory.items)) { instance = id; break; }
-			const request = moveItem(AgentCharlie.player, instance!).await();
-			expect(request[0]).to.equal(true); if (!request[0]) { return; /* ts */ }
-			expect(request[1].isOk()).to.equal(true);
+			const request = moveItem(AgentCharlie.player, instance!);
+			expect(request.isOk()).to.equal(true);
 			expect(ItemRepository.get(instance!).unwrap().enabled).to.equal(false);
 			expect(ItemRepository.InMovement.has(instance!)).to.equal(true);
 		})
@@ -20,19 +19,17 @@ export = function () {
 
 	describe("Item Movement Rejects", () => {
 		it("should reject if the item does not exist", () => {
-			const request = moveItem(AgentCharlie.player, "non-existant-id").await();
-			expect(request[0]).to.equal(true); if (!request[0]) { return; /* ts */ }
-			expect(request[1].isErr()).to.equal(true);
-			const err = request[1].unwrapErr();
+			const request = moveItem(AgentCharlie.player, "non-existant-id");
+			expect(request.isErr()).to.equal(true);
+			const err = request.unwrapErr();
 			expect(err).to.equal(GenericError.NotFound)
 		})
 
 		it("should reject if the item is not owned by the user", () => {
 			let instance: string; for (const [id] of pairs(AgentCharlie.user.inventory.items)) { instance = id; break; }
-			const request = moveItem(AgentDelta.player, instance!).await();
-			expect(request[0]).to.equal(true); if (!request[0]) { return; /* ts */ }
-			expect(request[1].isErr()).to.equal(true);
-			const err = request[1].unwrapErr();
+			const request = moveItem(AgentDelta.player, instance!);
+			expect(request.isErr()).to.equal(true);
+			const err = request.unwrapErr();
 			expect(err).to.equal(GenericError.Forbidden)
 		})
 	})

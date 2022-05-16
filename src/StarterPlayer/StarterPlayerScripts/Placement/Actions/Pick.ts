@@ -23,7 +23,7 @@ export function pickItem (): boolean {
 			PlacementState.Item = item.unwrap();
 			PlacementState.Normal = normal;
 			const current = PlacementState.Item.model.GetPivot();
-			PlacementState.Region = new ComplexRegion(PlacementState.Item!.model, (part) => !(part.GetAttribute("DoesNotBlockPlacement") as boolean ?? false));
+			PlacementState.Region = new ComplexRegion(PlacementState.Item.model, (part) => !(part.GetAttribute("DoesNotBlockPlacement") as boolean ?? false));
 			PlacementState.Degrees = math.deg(PlacementState.Item.model.GetPivot().ToEulerAnglesYXZ()[1]);
 			PlacementState.Move = current;
 			proxy.Value = current
@@ -34,7 +34,7 @@ export function pickItem (): boolean {
 			}
 
 			setSelectionBox(PlacementState.Item, SelectionBoxType.NORMAL);
-			Remotes.Client.Item.MoveItem(PlacementState.Item!.instanceID)
+			Remotes.Client.Item.MoveItem(PlacementState.Item.instanceID)
 			PlacementState.Item.setCollision(false);
 			PlacementState.Item.showPickup(true);
 		}

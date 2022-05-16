@@ -8,7 +8,7 @@ const Models: Record<string, Model> = {}
 // #region Initial model collection.
 const workspaceChildren = game.Workspace.GetChildren();
 const replicatedModels = ReplicatedStorage.FindFirstChild("Models")!.FindFirstChild("Tycoon")!.GetChildren() as Model[];
-for (const model of replicatedModels)  { model.GetAttribute("ItemID") !== undefined && (Models[model.GetAttribute("ItemID") as string] = model as Model) }
+for (const model of replicatedModels)  { model.GetAttribute("ItemID") !== undefined && (Models[model.GetAttribute("ItemID") as string] = model) }
 for (const model of workspaceChildren) { model.GetAttribute("ItemID") !== undefined && (Models[model.GetAttribute("ItemID") as string] = model as Model) }
 // #endregion Initial model collection.
 

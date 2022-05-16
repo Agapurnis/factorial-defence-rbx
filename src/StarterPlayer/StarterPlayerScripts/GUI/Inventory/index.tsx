@@ -25,7 +25,7 @@ function placeItem (register: ItemRegister<ItemTraitEnum[], ItemTrait> ) {
 	PlacementState.Region = new ComplexRegion(item.model, (part) => !(part.GetAttribute("DoesNotBlockPlacement") as boolean ?? false))
 	PlacementState.Item.setCollision(false);
 	PlacementState.Item.showPickup(true);
-	Remotes.Client.Item.MoveItem(PlacementState.Item!.instanceID)
+	Remotes.Client.Item.MoveItem(PlacementState.Item.instanceID)
 	moveItem()
 }
 

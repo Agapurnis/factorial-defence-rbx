@@ -9,8 +9,8 @@ export = function () {
 		setMigratable(migrated);
 		expect(migrated.placed).to.be.never.ok();
 		for (const [itemkey] of pairs(migrated.inventory.items)) {
-			expect(migrated.inventory.count[itemkey!]).to.equal(expected.inventory.count[itemkey!])
-			expect(migrated.inventory.items[itemkey!]).to.equal(expected.inventory.items[itemkey!])
+			expect(migrated.inventory.count[itemkey]).to.equal(expected.inventory.count[itemkey])
+			expect(migrated.inventory.items[itemkey]).to.equal(expected.inventory.items[itemkey])
 		}
 	})
 }

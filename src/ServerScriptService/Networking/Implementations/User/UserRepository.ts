@@ -61,6 +61,8 @@ export const UserRepository = new class UserRepository {
 		const timestamp = DateTime.now().UnixTimestampMillis;
 		let migration = data.joined[2];
 		data.joined ??= [timestamp, -1]; // pre-migration did not have any timestamp data
+		// We are ensuring these migrations work as expected through testing.
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		UserMigrations.filter(([t]) => t > data.joined[1]).forEach(([t, f]) => { migration = (migration ?? 0) < t ? t : migration; data = f(data) });
 		data.joined[1] = DateTime.now().UnixTimestampMillis;
 		data.joined[2] = migration

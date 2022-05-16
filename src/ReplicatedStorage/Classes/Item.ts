@@ -72,6 +72,7 @@ export class Item <
 	 * Looping timer used for functionality of the item.
 	 */
 	public timer?: Timer;
+
 	/**
 	 * Whether or not to have functionality.
 	 */
