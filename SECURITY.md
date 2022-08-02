@@ -15,8 +15,8 @@ A security vulnerability within the context of this project will be defined as s
 
 ### What happens after a vulnerability is found?
 
-An issue will be filed after the vulnerability has been *patched*, and you will be (optionally) credited.
+An issue will be filed for the purposes of recordkeeping after the vulnerability has been patched and deployed, and you will be (optionally) credited.
 
-### What happens if the vulnerability is not resolved after significant amounts of time?
+### What happens if the vulnerability is not resolved after a significant amount of time?
 
 You may publicly announce it.

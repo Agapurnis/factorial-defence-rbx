@@ -1,6 +1,5 @@
 {
-	"name": "factorial defence",
-	"globIgnorePaths": ["ServerStorage/**/TestEnvironment.rbxlx"],
+	"name": "Factorial Defence",
 	"tree": {
 		"$className": "DataModel",
 		"ServerScriptService": {
@@ -49,6 +48,15 @@
 			"$className": "Workspace",
 			"$properties": {
 				"FilteringEnabled": true
+			},
+			"Terrain": {
+				"$className": "Terrain",
+				"TS": {
+					"$path": "out/Workspace/Terrain"
+				}
+			},
+			"TS": {
+				"$path": "out/Workspace"
 			}
 		},
 		"HttpService": {

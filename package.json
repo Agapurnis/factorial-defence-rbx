@@ -1,6 +1,6 @@
 {
   "name": "factorial-defence",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "A game.",
   "repository": {
     "type": "git",
@@ -9,9 +9,9 @@
   "scripts": {
     "build": "rbxtsc",
     "watch": "rbxtsc -w",
-    "clean": "rm -rf out",
     "serve": "rojo serve",
-    "prepare": "patch-package && husky install",
+    "clean": "rm -rf out && rm ./flamework.build",
+    "prepare": "patch-package --patch-dir ./dev/scripts && husky install",
     "lint": "npx eslint src/",
     "lint:staged": "npx lint-staged -c ./lint-staged.config.json"
   },
@@ -31,30 +31,28 @@
     "husky": "^8.0.1",
     "lint-staged": "^12.4.1",
     "patch-package": "^6.4.7",
-    "rbxts-transformer-flamework": "^1.0.0-beta.10",
+    "rbxts-transform-env": "^1.1.0-ts4.5",
+    "rbxts-transformer-flamework": "^1.0.0-beta.12",
+    "rbxts-transformer-t": "^1.1.5",
     "roblox-ts": "^1.3.3",
-    "typescript": "^4.6.3"
+    "typescript": "^4.6.2"
   },
   "dependencies": {
     "@flamework/components": "^1.0.0-beta.6",
     "@flamework/core": "^1.0.0-beta.4",
-    "@rbxts/attributes": "^1.0.0",
-    "@rbxts/chat-service": "^1.2.1",
+    "@flamework/networking": "^1.0.0-beta.6",
+    "@rbxts/basicstate": "^1.2.0",
     "@rbxts/compiler-types": "^1.3.3-types.1",
-    "@rbxts/datastore2": "^1.4.0-ts.0",
-    "@rbxts/gamejoy": "^1.1.4",
     "@rbxts/log": "^0.6.3",
-    "@rbxts/net": "^3.0.0",
-    "@rbxts/netbuilder": "^0.4.0",
+    "@rbxts/maid": "^1.0.0-ts.1",
+    "@rbxts/message-templates": "^0.3.2",
+    "@rbxts/netbuilder": "^0.6.1",
     "@rbxts/roact": "^1.4.2-ts.0",
-    "@rbxts/rust-classes": "^0.11.1",
+    "@rbxts/rust-classes": "^0.11.2",
     "@rbxts/services": "^1.2.0",
     "@rbxts/t": "^3.0.0",
     "@rbxts/timer": "^0.0.7",
-    "@rbxts/types": "^1.0.591",
-    "rbx-timeout": "^1.0.7",
-    "rbxts-transform-env": "^1.1.0-ts4.5",
-    "rbxts-transformer-t": "^1.1.5"
+    "@rbxts/types": "^1.0.591"
   },
   "bugs": {
     "url": "https://github.com/Agapurnis/factorial-defence-rbx/issues"

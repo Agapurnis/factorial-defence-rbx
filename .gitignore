@@ -4,3 +4,4 @@
 *.tsbuildinfo
 **/.DS_Store
 **/TestEnvironment.rbxlx
+flamework.build
