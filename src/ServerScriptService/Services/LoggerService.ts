@@ -3,7 +3,6 @@ import type { Modding } from "@flamework/core";
 import Log, { Logger } from "@rbxts/log";
 import { ConstantUserRanks } from "ServerStorage/ConstantUserRanks";
 import { UserRankFlag } from "ReplicatedStorage/Enums/UserRankFlag";
-import { Remotes } from "ReplicatedStorage/Networking";
 import { Players } from "@rbxts/services";
 import { Service } from "@flamework/core";
 import { $env } from "rbxts-transform-env";
@@ -32,9 +31,9 @@ export class LoggerService {
 	private SendLog (log: LogEvent) {
 		if (this.AuthorizedUsers.size() === 0) return;
 
-		this.AuthorizedUsers.forEach((player) => {
-			Remotes.Server.MetaMenu.MetaMenuLogEvent.Send(player, log);
-		});
+		// this.AuthorizedUsers.forEach((player) => {
+		// 	GlobalFunctions.server.MetaMenuLogEvent.invoke(player, log);
+		// });
 	}
 
 	/**

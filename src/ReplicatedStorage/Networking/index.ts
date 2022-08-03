@@ -1,1 +1,2 @@
-export * from "./Declarations/index";
+import { Remotes } from "./Remotes";
+export default Remotes;

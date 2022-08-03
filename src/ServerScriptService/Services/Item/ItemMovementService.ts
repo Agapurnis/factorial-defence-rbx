@@ -1,6 +1,5 @@
 import type { ItemComponent } from "ReplicatedStorage/Components/Item";
 import { ItemMovementError } from "ReplicatedStorage/Enums/Errors/ItemMovementError";
-import { ComplexRegion } from "ReplicatedStorage/Utility/ComplexRegion";
 import { roundvec } from "ReplicatedStorage/Utility/RoundVector";
 import { Service } from "@flamework/core";
 import { Result } from "@rbxts/rust-classes";

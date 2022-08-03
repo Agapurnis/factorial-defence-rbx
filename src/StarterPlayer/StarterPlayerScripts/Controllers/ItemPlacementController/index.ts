@@ -4,10 +4,9 @@ import type { ItemMovementController } from "./ItemMovementController";
 import type { ItemComponent } from "ReplicatedStorage/Components/Item";
 import type { Components } from "@flamework/components";
 import { Players, UserInputService, ContextActionService, Workspace } from "@rbxts/services";
-import { SelectionBoxStyle } from "./ItemSelectionEffectController";
 import { Controller } from "@flamework/core";
-import { Remotes } from "ReplicatedStorage/Networking";
 import { Option } from "@rbxts/rust-classes";
+import Remotes from "ReplicatedStorage/Networking";
 
 const enum ItemInteractionContextActionServiceBindingName {
 	SelectItem = "SelectItem",
@@ -51,33 +50,35 @@ export class ItemPlacementController {
 
 		this.ItemSelectionController.GetSelected().forEach((item) => {
 			// Notify the server we are moving the items to disable their functionality.
-			Remotes.Client.Item.StartMovingItem.Call([item.attributes.ItemInstanceUUID]);
+			Remotes.StartMovingItems.Invoke([item.attributes.ItemInstanceUUID]);
 			// Display the visual effects and prevent anything from colliding with the item.
 			this.ItemSelectionEffectController.SetPickupEffect(item, true);
 			this.ItemSelectionEffectController.SetCollision(item, false);
 		});
 
 		// Consider the items placed when the next mouse click happens.
-		const AwaitingMouseClickConnection = UserInputService.InputEnded.Connect((event) => {
+		const AwaitingMouseClickConnection = UserInputService.InputEnded.Connect(async (event) => {
 			if (event.UserInputType !== Enum.UserInputType.MouseButton1) return;
 
 			// If every item can be placed, then place all items.
 			if (this.ItemSelectionController.GetSelected().every((item) => item.CanMoveTo(item.instance.GetPivot()))) {
-				this.ItemSelectionController.GetSelected().forEach((item) => {
-					const result = Remotes.Client.Item.PlaceItem.Call([
+				Remotes.PlaceItems.Invoke(
+					this.ItemSelectionController.GetSelected().map((item) => [
 						item.attributes.ItemInstanceUUID,
-						item.instance.GetPivot().GetComponents()
-					]);
+						item.instance.GetPivot()
+					])
+				)
+					.map((result, index) => [this.ItemSelectionController.GetSelected()[index], result] as const)
+					.forEach(([item, result]) => {
+						// Disable the item and disable it's various effects.
+						this.ItemSelectionController.Deselect(item);
+						this.ItemSelectionEffectController.SetCollision(item, true);
+						this.ItemSelectionEffectController.SetPickupEffect(item, false);
 
-					// Disable the item and disable it's various effects.
-					this.ItemSelectionController.Deselect(item);
-					this.ItemSelectionEffectController.SetCollision(item, true);
-					this.ItemSelectionEffectController.SetPickupEffect(item, false);
-
-					// Use the position that was returned from us, since we may have ended up slightly moving the item on the client.
-					// This would cause a mismatch/slight desynchronization between how the client see slights, abnd may cause the appearance of a possible collision.
-					item.instance.PivotTo(new CFrame(...result.expect("attempted to place an item on an invalid position despite ensuring all items can be placed")));
-				});
+						// Use the position that was returned from us, since we may have ended up slightly moving the item on the client.
+						// This would cause a mismatch/slight desynchronization between how the client see slights, abnd may cause the appearance of a possible collision.
+						item.instance.PivotTo(result.expect("attempted to place an item(s) on an invalid position despite ensuring all items can be placed"));
+					});
 
 				AwaitingMouseClickConnection.Disconnect();
 				this.ItemMovementController.DeactivateMovementMode();

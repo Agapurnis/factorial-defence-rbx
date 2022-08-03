@@ -1,28 +1,21 @@
-import type { SerializationDefinition } from "@rbxts/netbuilder";
-import { NetBuilder, Serialization } from "@rbxts/netbuilder";
+import type { SerdeImplementation } from "../Library";
 import { Result } from "@rbxts/rust-classes";
 
 export type SerializedResult =
 	| { Type: "Ok" ; Inner: defined }
 	| { Type: "Err"; Inner: defined };
 
-export const ResultSerializer = NetBuilder.CreateSerializer<SerializedResult>(Result, {
-	Serialize: (
-		value: Result<defined, defined>,
-		definition: SerializationDefinition
-	) => {
+export const ResultSerializer: SerdeImplementation<Result<defined, defined>, SerializedResult> = {
+	Serialize: (value, network): SerializedResult => {
 		const Type  = value.isOk() ? "Ok" : "Err";
 		const Refnc = value.asPtr();
 
-		return { Type, Inner: typeIs(Refnc, "table") ? Serialization.Serialize(definition, Refnc) : Refnc };
+		return { Type, Inner: network.Serialize(Refnc) as defined };
 	},
 
-	Deserialize: (
-		serialized: SerializedResult,
-		definition: SerializationDefinition
-	): Result<defined, defined> => {
+	Deserialize: (serialized, network) => {
 		return serialized.Type === "Ok"
-			? Result.ok( Serialization.Deserialize(definition, serialized.Inner))
-			: Result.err(Serialization.Deserialize(definition, serialized.Inner));
+			? Result.ok( network.Serialize(serialized.Inner) as defined)
+			: Result.err(network.Serialize(serialized.Inner) as defined);
 	},
-});
+};

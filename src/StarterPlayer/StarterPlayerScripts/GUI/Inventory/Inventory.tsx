@@ -9,7 +9,7 @@ import { InventoryItemPopoutPreview } from "./RoactComponents/InventoryItemPopou
 import { InventoryItemIcon } from "./RoactComponents/InventoryItemIcon";
 import { InventoryState } from "./InventoryState";
 import { Dependency } from "@flamework/core";
-import { Remotes } from "ReplicatedStorage/Networking";
+import Remotes from "ReplicatedStorage/Networking";
 
 type InventoryProps = {};
 type InventoryState = typeof InventoryState extends State<infer U> ? U : never;
@@ -157,7 +157,7 @@ class Inventory extends Component<
 									if (InventoryState.Get("Hovering") !== register) InventoryState.Set("Hovering", register);
 								},
 								"MouseButton1Down": () => {
-									const uuid = Remotes.Client.Item.CreateItem.Call([register.id]).expect("error spawning item");
+									const uuid = Remotes.CreateItems.Invoke([register.id])[0].expect("error spawning item");
 									const item = Dependency<Components>().getComponent<ItemComponent>(game.Workspace.WaitForChild(uuid));
 								}
 							}}

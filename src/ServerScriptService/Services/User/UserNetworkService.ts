@@ -6,7 +6,7 @@ import { CollectionTag } from "ReplicatedStorage/Enums/CollectionTag";
 import { GenericError } from "ReplicatedStorage/Networking/GenericError";
 import { Option, Result } from "@rbxts/rust-classes";
 import { Service } from "@flamework/core";
-import { Remotes } from "ReplicatedStorage/Networking";
+import Remotes from "ReplicatedStorage/Networking";
 
 @Service()
 export class UserNetworkService {
@@ -14,11 +14,11 @@ export class UserNetworkService {
 		private readonly UserService: UserService,
 		private readonly UserDataService: UserDataService
 	) {
-		Remotes.Server.User.SaveData.SetCallback((player) => {
+		Remotes.SaveUserData.SetCallback((player) => {
 			return this.UserService.GetUser(player).map((user): Result<true, GenericError | UserDataServiceError> => this.UserDataService.Save(user)).unwrapOr(Result.err(GenericError.NOT_FOUND));
 		});
 
-		Remotes.Server.User.DeleteData.SetCallback((player, [FullClear]) => {
+		Remotes.DeleteUserData.SetCallback((player, FullClear) => {
 			const userResult = this.UserService.GetUser(player); if (userResult.isNone()) { return Result.err(GenericError.NOT_FOUND); }
 			const user = userResult.unwrap();
 
