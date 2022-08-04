@@ -1,32 +1,32 @@
-import type { NetworkInvokableType, NetworkScope } from ".";
+import type { NetworkInvokableType, NetworkScope, Function } from ".";
 import type { Network } from "../";
 import { RemotesFolder } from ".";
 import { RunService } from "@rbxts/services";
 
-type RemoteCallback = (...parameters: never[]) => void;
+type RemoteCallback = Function<never>;
 
-export interface NetworkInvokableSpecification <
+export class NetworkInvokableSpecification <
 	T extends NetworkScope = NetworkScope,
 	U extends NetworkInvokableType = NetworkInvokableType,
 	V extends RemoteCallback = RemoteCallback
 > {
-	IS_NETWORK_INVOKABLE_SPECIFICATION: true,
-	/**
-	 * **Does not exist at runtime.**
-	 */
-	FunctionType: V
-	/**
- 	 * Check to validate parameters.
-	 */
-	ParameterValidator: (args: unknown[]) => args is Parameters<T>
-	/**
-	 * Where the function is executed.
-	 */
-	Scope: T
-	/**
-	 * Whether this is an event or a function.
-	 */
-	Type: U
+	constructor (
+		/**
+		 * Where the function is executed.
+		 */
+		public readonly Scope: T,
+		/**
+		 * Whether this is an event or a function.
+		 */
+		public readonly Type: U,
+		/**
+		 * The validators for callback parameters and return types.
+		 */
+		public readonly Validators?: {
+			ParameterTypeValidator?: (parameters: unknown[]) => parameters is Parameters<V>,
+			ReturnTypeValidator?: U extends "Event" ? never : (value: unknown) => value is ReturnType<V>
+		}
+	) {}
 }
 
 export abstract class NetworkInvokable <

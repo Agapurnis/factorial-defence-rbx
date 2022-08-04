@@ -1,8 +1,8 @@
-import type { LockToScope, NetworkScope, OverrideAdd } from ".";
+import type { LockToScope, NetworkScope, OverrideAdd, Function } from ".";
 import { NetworkInvokable } from "./base";
 import { RunService } from "@rbxts/services";
 
-export type RemoteEventCallback = (...parameters: never[]) => void;
+export type RemoteEventCallback = Function<never>;
 
 // #region Methods
 interface ServerSetCallback <T extends RemoteEventCallback> {
@@ -51,11 +51,11 @@ export class NetworkEvent <
 	>;
 
 	/**
-	 * @see {@link ServerFireMethods.Invoke}
-	 * @see {@link ClientFireMethods.Invoke}
+	 * - @see {@link ServerFireMethods.Invoke|Server Invocation} for invocation from the server and execution on the client.
+	 * - @see {@link ClientFireMethods.Invoke|Client Invocation} for invocation from the client and execution on the server.
 	 * ---
-	 * {@inheritdoc ServerFireMethods.Invoke}
-	 * {@inheritdoc ClientFireMethods.Invoke
+	 * - {@inheritDoc ServerFireMethods.Invoke}
+	 * - {@inheritDoc ClientFireMethods.Invoke}
 	 */
 	private Invoke (...parameters: T extends "Server" ? [player: Player, ...parameters: Parameters<V>] : Parameters<V>): ReturnType<V> {
 		if (this.Specification.Scope === "Client") {

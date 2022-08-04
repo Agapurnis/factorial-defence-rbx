@@ -7,6 +7,12 @@ export type NetworkScope = "Client" | "Server";
 export type NetworkInvokableType = "Event" | "Function";
 
 /**
+ * `P` - Spread parameter typings
+ * `R` - Return type
+ */
+export type Function <P = unknown, R = unknown> = (...parameters: P[]) => R;
+
+/**
  * Returns `V` if `T` extends `U`, otherwise `{}`.
  */
 export type LockToScope <
@@ -24,5 +30,8 @@ export type OverrideAdd <T, U> = Omit<T, keyof U extends keyof T ? keyof U : nev
  * The folder where all remotes are stored.
  */
 export const RemotesFolder = RunService.IsClient() ? ReplicatedStorage.WaitForChild("Remotes") : new Instance("Folder");
-RemotesFolder.Name = "Remotes";
-RemotesFolder.Parent = ReplicatedStorage;
+
+if (RunService.IsServer()) {
+	RemotesFolder.Name = "Remotes";
+	RemotesFolder.Parent = ReplicatedStorage;
+}

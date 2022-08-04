@@ -1,8 +1,8 @@
-import type { LockToScope, NetworkScope, OverrideAdd } from ".";
+import type { LockToScope, NetworkScope, OverrideAdd, Function } from ".";
 import { NetworkInvokable } from "./base";
 import { RunService } from "@rbxts/services";
 
-export type RemoteFunctionCallback = (...parameters: never[]) => unknown;
+export type RemoteFunctionCallback <R = unknown> = Function<never, R>;
 
 // #region Methods
 interface ServerPredictable <T extends RemoteFunctionCallback> {
@@ -73,11 +73,14 @@ export class NetworkFunction <
 	}
 
 	/**
-	 * @see {@link ServerFireMethods.Invoke}
-	 * @see {@link ClientFireMethods.Invoke}
+	 * - @see {@link ServerFireMethods.Invoke|Server Invocation} for invocation from the server and execution on the client.
+	 * - @see {@link ClientFireMethods.Invoke|Client Invocation} for invocation from the client and execution on the server.
 	 * ---
-	 * {@inheritdoc ServerFireMethods.Invoke}
-	 * {@inheritdoc ClientFireMethods.Invoke
+	 * @remarks
+	 *  - Client function invocation is currently disabled.
+	 * ---
+	 * - {@inheritDoc ServerFireMethods.Invoke}
+	 * - {@inheritDoc ClientFireMethods.Invoke}
 	 */
 	private Invoke (...parameters: T extends "Server" ? [player: Player, ...parameters: Parameters<V>] : Parameters<V>): ReturnType<V> {
 		if (this.Specification.Scope === "Client") {
@@ -118,7 +121,9 @@ export class NetworkFunction <
 			throw `Client functions aren't currently supported! (${this.Name})`;
 		}	else {
 			this.Remote.OnServerInvoke = (...data: unknown[]) => {
-				assert(this.Callback); return this.Network.Serialize(this.Callback(...(this.Network.Deserialize(data) as [never])));
+				assert(this.Callback, "callback does not exist despite previous check!");
+
+				return this.Network.Serialize(this.Callback(...(this.Network.Deserialize(data) as [never])));
 			};
 		}
 	}
