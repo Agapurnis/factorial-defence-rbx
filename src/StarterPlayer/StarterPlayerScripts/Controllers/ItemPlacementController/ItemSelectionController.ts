@@ -1,11 +1,9 @@
 import type { ItemSelectionEffectController} from "./ItemSelectionEffectController";
 import type { ItemPlacementController } from ".";
-import type { ItemMovementController } from "./ItemMovementController";
 import type { ItemComponent } from "ReplicatedStorage/Components/Item";
 import { Controller, Dependency } from "@flamework/core";
 import { Players, Workspace } from "@rbxts/services";
 import { HighlightStyle } from "./ItemSelectionEffectController";
-import { ComplexRegion } from "ReplicatedStorage/Utility/ComplexRegion";
 import { Option } from "@rbxts/rust-classes";
 
 const SelectedItemsContainerModel = new Instance("Model");
@@ -18,11 +16,6 @@ export class ItemSelectionController {
 	 * The identifier for the bound selection action used in `ContextActionService`.
 	 */
 	public static readonly SELECTION_ACTION_NAME = "ItemSelect";
-
-	/**
-	 * The `ComplexRegion`s for each selected item.
-	 */
-	public readonly ItemComplexRegions = new Map<ItemComponent, ComplexRegion>();
 
 	/**
 	 * The controller for various selection effects on an item.
@@ -45,21 +38,6 @@ export class ItemSelectionController {
 	private readonly mouse = Players.LocalPlayer.GetMouse();
 
 	/**
-	 * Toggles whether or not the provided item is selected, returning it's new toggled state.
-	 */
-	public ToggleSelected (item: ItemComponent): boolean {
-		const IsSelected = this.Selected.includes(item);
-
-		if (IsSelected) {
-			this.Deselect(item);
-		} else {
-			this.Select(item);
-		}
-
-		return !IsSelected;
-	}
-
-	/**
 	 * Returns an array containing all of the selected items.
 	 */
 	public GetSelected (): ItemComponent[] {
@@ -75,39 +53,41 @@ export class ItemSelectionController {
 	}
 
 	/**
-	 * Selects the item.
+	 * Selects the item, returning it.
 	 */
-	public Select (item: ItemComponent): void {
+	public Select (item: ItemComponent): typeof item {
 		// If it's already selected, don't do anything.
-		if (this.Selected.includes(item)) return;
-		// Otherwise, select the item and such.
+		if (this.Selected.includes(item)) return item;
+		// Otherwise, select the item and give it it's visual effects.
+		this.ItemSelectionEffectController.SetHighlight(item, HighlightStyle.SELECTED);
 		this.SelectedItemsContainerModel.PrimaryPart = item.instance.PrimaryPart!;
 		this.Selected.push(item);
-		this.ItemSelectionEffectController.SetHighlight(item, HighlightStyle.SELECTED);
-		this.ItemComplexRegions.set(item, new ComplexRegion(item.instance, (part) => !(part.GetAttribute("DoesNotBlockPlacement") as boolean | undefined ?? false)));
+		// Parent the item to the selection model transformer group.
 		item.instance.Parent = this.SelectedItemsContainerModel;
+		// Return the newly-selected item.
+		return item;
 	}
 
 	/**
-	 * Deselects the item.
+	 * Deselects the item, returning it.
 	 */
-	public Deselect (item: ItemComponent): void {
-		this.ItemSelectionEffectController.SetHighlight(item, HighlightStyle.NONE);
-		item.instance.Parent = Workspace;
-		// Synchronize and manually tween the CFrame in case the deselection and reparenting occured during movement.
-		Dependency<ItemMovementController>().ManuallyMoveItem(item);
+	public Deselect (item: ItemComponent): typeof item {
 		// Cleanup traces of this item being selected.
 		this.Selected.remove(this.Selected.indexOf(item));
 		this.SelectedItemsContainerModel.PrimaryPart = this.Selected[this.Selected.size()]?.instance?.PrimaryPart;
-		this.ItemComplexRegions.delete(item);
+		this.ItemSelectionEffectController.SetHighlight(item, HighlightStyle.NONE);
+		// Reparent the item so it is no longer in the selection model transformer group.
+		item.instance.Parent = Workspace;
+		// Return the now deselected item.
+		return item;
 	}
 
 	/**
-	 * Unselects all of the selected items.
+	 * Unselects all of the selected items, returning them.
 	 */
-	public DeselectAll (): void {
-		this.GetSelected().forEach((selected) => {
-			this.Deselect(selected);
+	public DeselectAll (): ItemComponent[] {
+		return this.GetSelected().map((selected) => {
+			return this.Deselect(selected);
 		});
 	}
 

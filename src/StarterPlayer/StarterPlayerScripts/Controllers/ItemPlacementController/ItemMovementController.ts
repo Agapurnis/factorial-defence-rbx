@@ -92,13 +92,13 @@ export class ItemMovementController {
 	}
 
 	/**
-	 * Manually moves the provided item to the position it is supposed to be in.
+	 * Manually moves the provided item to the position it is supposed to be in, or the provided position.
 	 * This should be done after the item has been unparented from the transformer item container model, as if they leave in the middle they may be left in an unexpected position.
 	 */
-	public ManuallyMoveItem (item: ItemComponent) {
+	public ManuallyMoveItem (item: ItemComponent, time = 0.1, cframe?: CFrame): void {
 		const BackupMaid = new Maid();
 		const BackupProxy = new Instance("CFrameValue");
-		const BackupTween = TweenService.Create(BackupProxy, new TweenInfo(0.1), { Value: this.Target.add(this.OriginOffsets.get(item) ?? new Vector3(0)) });
+		const BackupTween = TweenService.Create(BackupProxy, new TweenInfo(time, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { Value: cframe ?? this.Target.add(this.OriginOffsets.get(item) ?? new Vector3(0)) });
 		BackupProxy.Value = item.instance.GetPivot();
 		BackupMaid.GiveTask(BackupTween);
 		BackupMaid.GiveTask(BackupProxy);

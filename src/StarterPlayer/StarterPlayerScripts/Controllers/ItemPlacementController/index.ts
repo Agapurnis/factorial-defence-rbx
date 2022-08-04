@@ -56,7 +56,10 @@ export class ItemPlacementController {
 
 	private readonly MoveItemAction: Parameters<ContextActionService["BindAction"]>[1] = (action, state, input) => {
 		// We only care about the start of the input.
-		if (state !== Enum.UserInputState.End) return;
+		if (state === Enum.UserInputState.End) return;
+
+		// Store the initial position of each item prior to movement so it can be reverted in the event of an issue without any client-server desynchronization.
+		const PositionsPriorToMovement = this.ItemSelectionController.GetSelected().reduce((map, item) => { map.set(item, item.instance.GetPivot()); return map; }, new Map<ItemComponent, CFrame>());
 
 		// Make it so we can move items.
 		this.ItemMovementController.Setup();
@@ -77,31 +80,49 @@ export class ItemPlacementController {
 		const AwaitingMouseClickConnection = UserInputService.InputEnded.Connect((event) => {
 			if (event.UserInputType !== Enum.UserInputType.MouseButton1) return;
 
-			// If every item can be placed, then place all items.
-			if (this.ItemSelectionController.GetSelected().every((item) => item.CanMoveTo(item.instance.GetPivot()))) {
-				Remotes.PlaceItems.Invoke(
-					this.ItemSelectionController.GetSelected().map((item) => [
-						item.attributes.ItemInstanceUUID,
-						item.instance.GetPivot()
-					])
-				)
-					.map((result, index) => [this.ItemSelectionController.GetSelected()[index], result] as const)
-					.forEach(([item, result]) => {
-						// Disable the item and disable it's various effects.
-						this.ItemSelectionController.Deselect(item);
-						this.ItemSelectionEffectController.SetCollision(item, true);
-						this.ItemSelectionEffectController.SetPickupEffect(item, false);
+			const Movable = this.ItemSelectionController.GetSelected().filter((item) => !item.IsColliding());
 
-						// Use the position that was returned from us, since we may have ended up slightly moving the item on the client.
-						// This would cause a mismatch/slight desynchronization between how the client see slights, abnd may cause the appearance of a possible collision.
-						item.instance.PivotTo(result.expect("attempted to place an item(s) on an invalid position despite ensuring all items can be placed"));
-					});
+			// Store the position of each item prior to placement so we can bypass the server's position update to tween it in a prettier way.
+			const PositionsPriorToPlacement = this.ItemSelectionController.GetSelected().reduce((map, item) => { map.set(item, item.instance.GetPivot()); return map; }, new Map<ItemComponent, CFrame>());
 
+			Remotes.PlaceItems.Invoke(
+				Movable.map((item) => [
+					item.attributes.ItemInstanceUUID,
+					item.instance.GetPivot()
+				])
+			).forEach((result, index) => {
+				const item = Movable[index];
+
+				// Immediately revert the movement so that we can do our own tweened movement.
+				// This unfortunately still has a bit of a jitter. :(
+				item.instance.PivotTo(PositionsPriorToPlacement.get(item)!);
+
+				if (result.isErr()) {
+					warn(`Failed to move item '${item.attributes.ItemInstanceUUID}', attempting to revert to previous position.`);
+					// We didn't actually end up moving this item due to a small collision desynchronization issue between the server and client.
+					// The best choice would be to move attempt to move the item on the client back to it's previous position, without deselecting it.
+					const fallback = Remotes.PlaceItems.Invoke([[item.attributes.ItemInstanceUUID, PositionsPriorToMovement.get(item)!]])[0];
+					// If that didn't end up working, just keep it in a movement state.
+					if (fallback.isErr()) return;
+				}
+
+				// Disable the item and disable it's various effects.
+				this.ItemSelectionController.Deselect(item);
+				this.ItemSelectionEffectController.SetCollision(item, true);
+				this.ItemSelectionEffectController.SetPickupEffect(item, false);
+
+				// Use the position that was returned from us, since we may have ended up slightly moving the item on the client.
+				// This would cause a mismatch/slight desynchronization between how the client see slights, abnd may cause the appearance of a possible collision.
+				// In the event that the request actually failed, return the item to it's previous position.
+				this.ItemMovementController.ManuallyMoveItem(item, 0.25, result.unwrapOr(PositionsPriorToMovement.get(item)!));
+			});
+
+			if (this.ItemSelectionController.GetSelected().size() === 0) {
 				AwaitingMouseClickConnection.Disconnect();
 				this.ItemMovementController.DeactivateMovementMode();
 				this.TryHoverItemOverCursor();
-				this.SetCanHover(true);
 				this.SetCanSelect(true);
+				this.SetCanHover(true);
 			}
 		});
 	};
@@ -131,21 +152,35 @@ export class ItemPlacementController {
 			}
 
 			if (item.isSome() && shift) {
-				const state = this.ItemSelectionController.ToggleSelected(item.unwrap());
+				// Toggle the selection status of the item.
+				if (this.ItemSelectionController.IsSelected(item.unwrap())) {
+					this.ItemSelectionController.Deselect(item.unwrap());
+					// A sudden deselection means the item is no longer parented to the selection group model which has it's transformations being applied.
+					// To ensure the item doesn't get stuck in an invalid position on the client, manually move it.
+					this.ItemMovementController.ManuallyMoveItem(item.unwrap());
+				} else {
+					this.ItemSelectionController.Select(item.unwrap());
+				}
 
+				// If one or more items are still selected, allow interaction.
 				if (this.ItemSelectionController.GetSelected().size() > 0) {
 					this.SetCanInteract(true);
 				} else {
 					this.SetCanInteract(false);
 				}
 
-				if (state === false) return;
+				// Don't continue execution if the item is now deselected, as it could have unintended side-effects.
+				if (!this.ItemSelectionController.IsSelected(item.unwrap())) return;
 			}
 
 			if (shift || this.ItemSelectionController.GetSelected().size() === 0) {
 				this.ItemSelectionController.BeginSelecting();
 			} else {
-				this.ItemSelectionController.DeselectAll();
+				this.ItemSelectionController.DeselectAll().forEach((item) => {
+					// A sudden deselection means the item is no longer parented to the selection group model which has it's transformations being applied.
+					// To ensure the item doesn't get stuck in an invalid position on the client, manually move it.
+					this.ItemMovementController.ManuallyMoveItem(item);
+				});
 
 				// If we clicked off our selection onto another item, make that our only new selection.
 				if (item.isSome() && !this.ItemSelectionController.IsSelected(item.unwrap())) {
@@ -194,7 +229,7 @@ export class ItemPlacementController {
 		) {
 			this.ItemSelectionEffectController.SetHighlight(item.unwrap(), HighlightStyle.HOVERING);
 		} else if (
-			this.PreviouslyHoveredItem.map((item) => !this.ItemSelectionController.IsSelected(item)).and(item).unwrapOr(false)
+			this.PreviouslyHoveredItem.filter((item) => !this.ItemSelectionController.IsSelected(item)).map(() => true).unwrapOr(false)
 		) {
 			this.ItemSelectionEffectController.SetHighlight(this.PreviouslyHoveredItem.unwrap(), HighlightStyle.NONE);
 		}

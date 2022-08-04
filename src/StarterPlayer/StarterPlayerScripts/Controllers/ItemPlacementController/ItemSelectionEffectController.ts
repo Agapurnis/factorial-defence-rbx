@@ -114,6 +114,7 @@ export class ItemSelectionEffectController {
 			case HighlightStyle.ERROR: {
 				highlight.FillColor = Color3.fromRGB(255, 0, 0);
 				highlight.FillTransparency = 0.6;
+				highlight.OutlineTransparency = 1;
 				break;
 			}
 			case HighlightStyle.SELECTED: {
