@@ -29,7 +29,7 @@ interface ClientFireMethods <T extends RemoteEventCallback> {
 	/**
 	 * @client
 	 */
-	Invoke (player: Player, ...parameters: Parameters<T>): ReturnType<T>
+	Invoke (...parameters: Parameters<T>): ReturnType<T>
 }
 // #endregion Methods
 
