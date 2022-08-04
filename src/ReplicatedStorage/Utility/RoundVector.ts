@@ -1,29 +1,24 @@
 /**
  * Rounds the vector based on the provided input.
- * @param vec - The vector to be rounded.
+ * @param vector - The vector to be rounded.
  * @param round - The manner in which to round the provided vector.
  * @returns The rounded vector.
- * @throws if during the round, a division by zero was attempted
+ * @remarks
+ *  - A rounding of '0' is interpreted to mean that the vector should not be rounded.
  */
-export function roundvec (vec: Vector3, round: Vector3 | number) {
+export function roundvec (vector: Vector3, round: Vector3 | number) {
 	if (typeIs(round, "number")) {
-		if (round === 0) throw "roundvec: cannot round with zero";
+		if (round === 0) return vector;
 		return new Vector3(
-			math.round(vec.X / round) * round,
-			math.round(vec.Y / round) * round,
-			math.round(vec.Z / round) * round
+			math.round(vector.X / round) * round,
+			math.round(vector.Y / round) * round,
+			math.round(vector.Z / round) * round
 		);
 	} else {
-		if (
-			round.X === 0 ||
-			round.Y === 0 ||
-			round.Z === 0
-		) throw "roundvec: cannot round with zero";
-
 		return new Vector3(
-			math.round(vec.X / round.X) * round.X,
-			math.round(vec.Y / round.Y) * round.Y,
-			math.round(vec.Z / round.Z) * round.Z
+			(round.X === 0) ? vector.X : math.round(vector.X / round.X) * round.X,
+			(round.Y === 0) ? vector.Y : math.round(vector.Y / round.Y) * round.Y,
+			(round.Z === 0) ? vector.Z : math.round(vector.Z / round.Z) * round.Z
 		);
 	}
 }

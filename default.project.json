@@ -1,6 +1,5 @@
 {
-	"name": "factorial defence",
-	"globIgnorePaths": ["ServerStorage/**/TestEnvironment.rbxlx"],
+	"name": "Factorial Defence",
 	"tree": {
 		"$className": "DataModel",
 		"ServerScriptService": {
@@ -14,7 +13,10 @@
 			"rbxts_include": {
 				"$path": "include",
 				"node_modules": {
-					"$path": "node_modules/@rbxts"
+					"$path": "node_modules/@rbxts",
+					"@flamework": {
+						"$path": "node_modules/@flamework"
+					}
 				}
 			},
 			"TS": {
@@ -46,6 +48,15 @@
 			"$className": "Workspace",
 			"$properties": {
 				"FilteringEnabled": true
+			},
+			"Terrain": {
+				"$className": "Terrain",
+				"TS": {
+					"$path": "out/Workspace/Terrain"
+				}
+			},
+			"TS": {
+				"$path": "out/Workspace"
 			}
 		},
 		"HttpService": {

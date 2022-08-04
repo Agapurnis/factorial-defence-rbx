@@ -10,6 +10,7 @@
 	"ignorePatterns": [
 		"/out",
 		"/dev",
+		"/scripts",
 		"*.config.js"
 	],
 	"plugins": [
@@ -25,6 +26,7 @@
 	"rules": {
 		"@typescript-eslint/consistent-type-imports": "error",
 		"@typescript-eslint/no-floating-promises": "off",
+		"@typescript-eslint/no-misused-promises": "off",
 		"@typescript-eslint/prefer-readonly": "error",
 		"@typescript-eslint/semi": "error",
 		"linebreak-style": "error",

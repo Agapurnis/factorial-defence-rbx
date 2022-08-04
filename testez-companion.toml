@@ -1,1 +1,4 @@
-roots = ["ServerStorage/TS/Testing/Tests"]
+roots = [
+	"ServerStorage/TS/Testing/",
+	"ServerStorage/TS/Migrations/MigrationTests",
+]

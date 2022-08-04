@@ -1,0 +1,29 @@
+diff --git a/node_modules/@rbxts/basicstate/out/index.d.ts b/node_modules/@rbxts/basicstate/out/index.d.ts
+index bb517fd..5523a8d 100644
+--- a/node_modules/@rbxts/basicstate/out/index.d.ts
++++ b/node_modules/@rbxts/basicstate/out/index.d.ts
+@@ -1,6 +1,6 @@
+-import Roact from "@rbxts/roact";
++import Roact, { Component } from "@rbxts/roact";
+ 
+-interface State<T> {
++export interface State<T> {
+     /**
+      * Retrieve and return a value from the store. Optionally takes a DefaultValue
+ 	 * parameter, which will be returned if the stored value is nil
+@@ -67,7 +67,7 @@ interface State<T> {
+      * Wraps a Roact component and injects the given keys into the component's state.
+ 	 * The component will be re-rendered when State changes.
+      */
+-    Roact<K extends keyof T>(Component: Roact.Component, Keys?: K[]): Roact.Component,
++    Roact<K extends keyof T, U extends Roact.ComponentConstructor<{}, T>>(Component: U, Keys?: K[]): U
+ 
+     /**
+      * Destroys all BindableEvents created using GetChangedSignal, the .Changed event's
+@@ -88,4 +88,4 @@ interface StateConstructor {
+ }
+ 
+ declare const BasicState: StateConstructor;
+-export = BasicState;
+\ No newline at end of file
++export default BasicState;

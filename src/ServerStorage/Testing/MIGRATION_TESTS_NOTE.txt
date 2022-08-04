@@ -1,0 +1,1 @@
+Migration tests are located with the migration folder, not under the testing folder.
