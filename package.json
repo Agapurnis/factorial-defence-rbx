@@ -50,7 +50,7 @@
     "@rbxts/services": "^1.2.0",
     "@rbxts/t": "^3.0.0",
     "@rbxts/timer": "^0.0.7",
-    "@rbxts/types": "^1.0.591"
+    "@rbxts/types": "^1.0.633"
   },
   "bugs": {
     "url": "https://github.com/Agapurnis/factorial-defence-rbx/issues"
