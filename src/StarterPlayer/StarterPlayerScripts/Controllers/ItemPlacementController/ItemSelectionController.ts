@@ -4,7 +4,7 @@ import type { ItemMovementController } from "./ItemMovementController";
 import type { ItemComponent } from "ReplicatedStorage/Components/Item";
 import { Controller, Dependency } from "@flamework/core";
 import { Players, Workspace } from "@rbxts/services";
-import { SelectionBoxStyle } from "./ItemSelectionEffectController";
+import { HighlightStyle } from "./ItemSelectionEffectController";
 import { ComplexRegion } from "ReplicatedStorage/Utility/ComplexRegion";
 import { Option } from "@rbxts/rust-classes";
 
@@ -27,7 +27,7 @@ export class ItemSelectionController {
 	/**
 	 * The controller for various selection effects on an item.
 	 */
-	private readonly ItemSelectionBoxController = Dependency<ItemSelectionEffectController>();
+	private readonly ItemSelectionEffectController = Dependency<ItemSelectionEffectController>();
 
 	/**
 	 * The model that will contain all of the selected items.
@@ -43,11 +43,6 @@ export class ItemSelectionController {
 	 * The mouse, used to find where the user is hovering over to select the relevant item.
 	 */
 	private readonly mouse = Players.LocalPlayer.GetMouse();
-
-	/**
-	 * Whether or not to begin selecting items when MB1 is pressed.
-	 */
-	public ShouldActiveOnButtonPress = true;
 
 	/**
 	 * Toggles whether or not the provided item is selected, returning it's new toggled state.
@@ -88,7 +83,7 @@ export class ItemSelectionController {
 		// Otherwise, select the item and such.
 		this.SelectedItemsContainerModel.PrimaryPart = item.instance.PrimaryPart!;
 		this.Selected.push(item);
-		this.ItemSelectionBoxController.SetSelectionBox(item, SelectionBoxStyle.NORMAL);
+		this.ItemSelectionEffectController.SetHighlight(item, HighlightStyle.SELECTED);
 		this.ItemComplexRegions.set(item, new ComplexRegion(item.instance, (part) => !(part.GetAttribute("DoesNotBlockPlacement") as boolean | undefined ?? false)));
 		item.instance.Parent = this.SelectedItemsContainerModel;
 	}
@@ -97,7 +92,7 @@ export class ItemSelectionController {
 	 * Deselects the item.
 	 */
 	public Deselect (item: ItemComponent): void {
-		this.ItemSelectionBoxController.RemoveSelectionBox(item);
+		this.ItemSelectionEffectController.SetHighlight(item, HighlightStyle.NONE);
 		item.instance.Parent = Workspace;
 		// Synchronize and manually tween the CFrame in case the deselection and reparenting occured during movement.
 		Dependency<ItemMovementController>().ManuallyMoveItem(item);
@@ -136,11 +131,9 @@ export class ItemSelectionController {
 	}
 
 	/**
-	 * Activates the selection mode.
+	 * Activates the selection mode, attempting to select every item the cursor moves over.
 	 */
-	public ActivateSelectionMode (): void {
-		if (!this.ShouldActiveOnButtonPress) return;
-
+	public BeginSelecting (): void {
 		// Before we have another connection, disgard the old one if it exists.
 		this.SelectionHookConnection?.Disconnect();
 		this.SelectionHookConnection = this.mouse.Move.Connect(() => this.TrySelect());
@@ -152,7 +145,7 @@ export class ItemSelectionController {
 	/**
 	 * Deactivates the selection mode.
 	 */
-	public DeactivateSelectionMode (): void {
+	public StopSelecting (): void {
 		this.SelectionHookConnection?.Disconnect();
 	}
 }

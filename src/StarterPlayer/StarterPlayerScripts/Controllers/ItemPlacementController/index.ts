@@ -4,12 +4,14 @@ import type { ItemMovementController } from "./ItemMovementController";
 import type { ItemComponent } from "ReplicatedStorage/Components/Item";
 import type { Components } from "@flamework/components";
 import { Players, UserInputService, ContextActionService, Workspace } from "@rbxts/services";
+import { HighlightStyle } from "./ItemSelectionEffectController";
 import { Controller } from "@flamework/core";
 import { Option } from "@rbxts/rust-classes";
 import Remotes from "ReplicatedStorage/Networking";
 
 const enum ItemInteractionContextActionServiceBindingName {
 	SelectItem = "SelectItem",
+	HoverItem = "HoverItem",
 	MoveItem = "MoveItem",
 }
 
@@ -27,8 +29,23 @@ export class ItemPlacementController {
 		// But whether or not we re-enable the action is dependant upon the new state as provided by the caller.
 		if (state) ContextActionService.BindAction(ItemInteractionContextActionServiceBindingName.SelectItem, this.SelectItemAction, false, Enum.UserInputType.MouseButton1, Enum.UserInputType.Touch);
 	}
+
+	/**
+	 * Sets whether or not the bindings that allow the user to hover over items are active or not.
+	 *
+	 * Obviously, the user can move their input device and hover over items regardless of this setting, but this controls the visual effects.
+	 */
+	private SetCanHover (state: boolean) {
+		// We always want to unbind regardless of the new state so we don't end up having multiple actions bound.
+		ContextActionService.UnbindAction(ItemInteractionContextActionServiceBindingName.HoverItem);
+		// But whether or not we re-enable the action is dependant upon the new state as provided by the caller.
+		if (state) ContextActionService.BindAction(ItemInteractionContextActionServiceBindingName.HoverItem, this.HoverItemAction, false, Enum.UserInputType.MouseMovement);
+	}
+
 	/**
 	 * Sets whether or not the bindings that allow the user to interact with items are active or not.
+	 *
+	 * An interaction, in this case, would be moving an item.
 	 */
 	private SetCanInteract (state: boolean) {
 		// We always want to unbind regardless of the new state so we don't end up having multiple actions bound.
@@ -57,7 +74,7 @@ export class ItemPlacementController {
 		});
 
 		// Consider the items placed when the next mouse click happens.
-		const AwaitingMouseClickConnection = UserInputService.InputEnded.Connect(async (event) => {
+		const AwaitingMouseClickConnection = UserInputService.InputEnded.Connect((event) => {
 			if (event.UserInputType !== Enum.UserInputType.MouseButton1) return;
 
 			// If every item can be placed, then place all items.
@@ -82,9 +99,15 @@ export class ItemPlacementController {
 
 				AwaitingMouseClickConnection.Disconnect();
 				this.ItemMovementController.DeactivateMovementMode();
+				this.TryHoverItemOverCursor();
+				this.SetCanHover(true);
 				this.SetCanSelect(true);
 			}
 		});
+	};
+
+	private readonly HoverItemAction: Parameters<ContextActionService["BindAction"]>[1] = (action, state, input) => {
+		this.TryHoverItemOverCursor();
 	};
 
 	/**
@@ -96,9 +119,7 @@ export class ItemPlacementController {
 	 */
 	private readonly SelectItemAction: Parameters<ContextActionService["BindAction"]>[1] = (action, state, input) => {
 		if (state === Enum.UserInputState.Begin) {
-			// The item (or not) the user was looking at when the input began.
 			const item = this.GetItemOverCursor();
-			// Whether or not the user was holding shift when the input began.
 			const shift = false
 				|| UserInputService.IsKeyDown(Enum.KeyCode.LeftShift)
 				|| UserInputService.IsKeyDown(Enum.KeyCode.RightShift);
@@ -122,11 +143,11 @@ export class ItemPlacementController {
 			}
 
 			if (shift || this.ItemSelectionController.GetSelected().size() === 0) {
-				this.ItemSelectionController.ActivateSelectionMode();
+				this.ItemSelectionController.BeginSelecting();
 			} else {
 				this.ItemSelectionController.DeselectAll();
 
-				// If we clicked off our selection onto another item, select that one (if it isn't already a selected item).
+				// If we clicked off our selection onto another item, make that our only new selection.
 				if (item.isSome() && !this.ItemSelectionController.IsSelected(item.unwrap())) {
 					this.ItemSelectionController.Select(item.unwrap());
 				}
@@ -134,23 +155,51 @@ export class ItemPlacementController {
 		}
 
 		if (state === Enum.UserInputState.End) {
-			this.ItemSelectionController.DeactivateSelectionMode();
+			this.ItemSelectionController.StopSelecting();
 
 			if (this.ItemSelectionController.GetSelected().size() > 0) {
 				this.SetCanInteract(true);
+			} else {
+				this.TryHoverItemOverCursor();
 			}
 		}
 	};
 
 	/**
 	 * Returns the `ItemComponent` that the mouse is hovering over, if it exists.
-	 *
-	 * TODO: Support nested models.
 	 */
 	public GetItemOverCursor (): Option<ItemComponent> {
-		const target = this.mouse.Target?.FindFirstAncestorWhichIsA("Model");
-		const item = target ? this.Components.getComponent<ItemComponent>(target) : target;
-		return Option.wrap(item);
+		const target = this.mouse.Target;
+
+		if (target === undefined) return Option.none<ItemComponent>();
+
+		const ascendToItem = (instance: Instance): ItemComponent | undefined => {
+			const item = this.Components.getComponent<ItemComponent>(instance);
+			const parent = instance.FindFirstAncestorWhichIsA("Model");
+			return item ? item : parent ? ascendToItem(parent) : parent;
+		};
+
+		return Option.wrap<ItemComponent>(ascendToItem(target));
+	}
+
+	private PreviouslyHoveredItem = Option.none<ItemComponent>();
+	private TryHoverItemOverCursor () {
+		const item = this.GetItemOverCursor();
+
+		if (
+			item.map((item) => {
+				return item.Owner.instance.UserId === Players.LocalPlayer.UserId &&
+				!this.ItemSelectionController.IsSelected(item);
+			}).unwrapOr(false)
+		) {
+			this.ItemSelectionEffectController.SetHighlight(item.unwrap(), HighlightStyle.HOVERING);
+		} else if (
+			this.PreviouslyHoveredItem.map((item) => !this.ItemSelectionController.IsSelected(item)).and(item).unwrapOr(false)
+		) {
+			this.ItemSelectionEffectController.SetHighlight(this.PreviouslyHoveredItem.unwrap(), HighlightStyle.NONE);
+		}
+
+		this.PreviouslyHoveredItem = item;
 	}
 
 	constructor (
@@ -161,7 +210,7 @@ export class ItemPlacementController {
 	) {
 		assert(this.camera, "Expected a camera to exist.");
 
-		// Make it so we can actually interact with the items.
+		this.SetCanHover(true);
 		this.SetCanSelect(true);
 	}
 }

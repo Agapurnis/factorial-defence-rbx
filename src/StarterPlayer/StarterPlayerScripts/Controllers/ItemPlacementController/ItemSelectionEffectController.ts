@@ -3,24 +3,20 @@ import { Option } from "@rbxts/rust-classes";
 import { CollectionService, RunService, TweenService } from "@rbxts/services";
 import type { ItemComponent } from "ReplicatedStorage/Components/Item";
 
-export enum SelectionBoxStyle {
+export enum HighlightStyle {
+	NONE,
 	ERROR,
-	NORMAL,
+	HOVERING,
+	SELECTED,
 }
 
 @Controller()
 export class ItemSelectionEffectController {
-	private static readonly SELECTION_BOX_STYLE_TRANSPARENCY_SURFACE = 0.92;
-	private static readonly SELECTION_BOX_STYLE_TRANSPARENCY_BORDER  = 0.8;
-	private static readonly SELECTION_BOX_STYLE_COLOR_ERROR = Color3.fromRGB(214, 84, 84);
-	private static readonly SELECTION_BOX_STYLE_COLOR_OKAY  = Color3.fromRGB(92, 125, 232);
-
-	private readonly ItemSelectionBoxes = new Map<ItemComponent, [SelectionBox, SelectionBoxStyle]>();
+	private readonly ItemHighlights = new Map<ItemComponent, [Highlight, HighlightStyle]>();
 	private readonly ItemPickupEffectConnections = new Map<ItemComponent, Option<RBXScriptConnection>>();
 
 	/**
 	 * Sets the display of pickup animation to the provided state on the provided item.
-	 * @param enabled - What state to toggle to.
 	 */
 	public SetPickupEffect (item: ItemComponent, enabled: boolean): void {
 		const DynamicInstances = item.instance.GetDescendants().filter((part) => CollectionService.HasTag(part, "DisplayOnPickup"));
@@ -83,53 +79,70 @@ export class ItemSelectionEffectController {
 	}
 
 	/**
-	 * Adds a selection box to the provided item item, with the provided style (defaults to normal).
-	 * If one already exists, it will be removed first.
+	 * Adds a highlight to the provided item with the provided style (defaults to `SELECTED` style).
+	 *
+	 * If the style is `NONE`, then the highlight is removed.
 	 */
-	public SetSelectionBox (item: ItemComponent, style = SelectionBoxStyle.NORMAL): SelectionBox {
-		// If a selection box already exists...
-		if (this.ItemSelectionBoxes.has(item)) {
-			const [oldBox, oldStyle] = this.ItemSelectionBoxes.get(item)!;
-			if (style !== oldStyle) {
-				// And it isn't the current style, then remove it.
-				this.RemoveSelectionBox(item);
-			} else {
-				// Otherwise, nothing needs to be done, as it's the same style.
-				return oldBox;
-			}
+	public SetHighlight (item: ItemComponent, style: Exclude<HighlightStyle, HighlightStyle.NONE>): Highlight;
+	public SetHighlight (item: ItemComponent, style: HighlightStyle.NONE): undefined;
+	public SetHighlight (item: ItemComponent, style = HighlightStyle.SELECTED): Highlight | undefined {
+		let highlight: Highlight | undefined;
+
+		if (style === HighlightStyle.NONE) {
+			// The highlight should be destroyed.
+			if (!this.ItemHighlights.has(item)) return;
+			this.ItemHighlights.get(item)![0].Destroy();
+			this.ItemHighlights.delete(item);
+			return;
+		} else if (!this.ItemHighlights.has(item)) {
+			// A highlight doesn't yet exist, so make one.
+			highlight = new Instance("Highlight");
+			this.ItemHighlights.set(item, [highlight, style]);
+		} else if (this.ItemHighlights.get(item)![1] === style) {
+			// This is the same style, we don't need to do anything.
+			// Just return the highlight that already exists.
+			return this.ItemHighlights.get(item)![0];
+		} else {
+			// This a new style, create the highlight.
+			highlight = this.ItemHighlights.get(item)![0];
+			this.ItemHighlights.set(item, [highlight, style]);
 		}
 
-		const SelectionBox = new Instance("SelectionBox");
-		SelectionBox.SurfaceTransparency = ItemSelectionEffectController.SELECTION_BOX_STYLE_TRANSPARENCY_SURFACE;
-		SelectionBox.Transparency        = ItemSelectionEffectController.SELECTION_BOX_STYLE_TRANSPARENCY_BORDER;
-
-		this.ItemSelectionBoxes.set(item, [SelectionBox, style]);
+		assert(highlight, "highlight should exist before styling! (This should not occur!)");
 
 		switch (style) {
-			case SelectionBoxStyle.ERROR: {
-				SelectionBox.Color3        = ItemSelectionEffectController.SELECTION_BOX_STYLE_COLOR_ERROR;
-				SelectionBox.SurfaceColor3 = ItemSelectionEffectController.SELECTION_BOX_STYLE_COLOR_ERROR;
+			case HighlightStyle.ERROR: {
+				highlight.FillColor = Color3.fromRGB(255, 0, 0);
+				highlight.FillTransparency = 0.6;
 				break;
 			}
-			case SelectionBoxStyle.NORMAL: {
-				SelectionBox.Color3        = ItemSelectionEffectController.SELECTION_BOX_STYLE_COLOR_OKAY;
-				SelectionBox.SurfaceColor3 = ItemSelectionEffectController.SELECTION_BOX_STYLE_COLOR_OKAY;
+			case HighlightStyle.SELECTED: {
+				highlight.FillTransparency = 1;
+				highlight.OutlineColor = Color3.fromRGB(255, 255, 255);
+				highlight.OutlineTransparency = 0;
+				break;
+			}
+			case HighlightStyle.HOVERING: {
+				highlight.FillTransparency = 1;
+				highlight.OutlineColor = Color3.fromRGB(168, 168, 168);
+				highlight.OutlineTransparency = 0.8;
 				break;
 			}
 		}
 
-		SelectionBox.Adornee = item.instance;
-		SelectionBox.Parent = item.instance;
+		highlight.Adornee = item.instance;
+		highlight.Parent = item.instance;
 
-		return SelectionBox;
+		return highlight;
 	}
 
 	/**
-	 * Removes the selection box from the provided item.
+	 * Returns the highlight style for the provided item.
 	 */
-	public RemoveSelectionBox (item: ItemComponent): void {
-		if (!this.ItemSelectionBoxes.has(item)) return;
-		this.ItemSelectionBoxes.get(item)![0].Destroy();
-		this.ItemSelectionBoxes.delete(item);
+	public GetHighlight (item: ItemComponent): HighlightStyle {
+		// A highlight hasn't been initialized, or was already removed.
+		if (!this.ItemHighlights.has(item)) return HighlightStyle.NONE;
+		// Otherwise, return it's actual style.
+		return this.ItemHighlights.get(item)![1];
 	}
 }

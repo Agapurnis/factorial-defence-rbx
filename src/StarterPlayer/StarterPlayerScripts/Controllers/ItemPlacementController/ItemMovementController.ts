@@ -4,7 +4,7 @@ import type { ItemSelectionEffectController} from "./ItemSelectionEffectControll
 import { TweenService, RunService, ContextActionService } from "@rbxts/services";
 import { getAdjustedMouseTargetCFrame } from "StarterPlayer/StarterPlayerScripts/Utility/GetAdjustedMouseTargetCFrame";
 import { Controller, Dependency } from "@flamework/core";
-import { SelectionBoxStyle } from "./ItemSelectionEffectController";
+import { HighlightStyle } from "./ItemSelectionEffectController";
 import Maid from "@rbxts/maid";
 
 const enum RotationDirection {
@@ -157,8 +157,8 @@ export class ItemMovementController {
 				// Update every item's selection box based on it's collision status.
 				this.ItemSelectionController.GetSelected().forEach((item) => {
 					item.IsColliding()
-						? this.ItemSelectionEffectController.SetSelectionBox(item, SelectionBoxStyle.ERROR)
-						: this.ItemSelectionEffectController.SetSelectionBox(item, SelectionBoxStyle.NORMAL);
+						? this.ItemSelectionEffectController.SetHighlight(item, HighlightStyle.ERROR)
+						: this.ItemSelectionEffectController.SetHighlight(item, HighlightStyle.SELECTED);
 				});
 			}
 		});
