@@ -1,0 +1,10 @@
+diff --git a/node_modules/@rbxts/log/out/Core/TypeUtils.d.ts b/node_modules/@rbxts/log/out/Core/TypeUtils.d.ts
+index d5df728..4187fb2 100644
+--- a/node_modules/@rbxts/log/out/Core/TypeUtils.d.ts
++++ b/node_modules/@rbxts/log/out/Core/TypeUtils.d.ts
+@@ -1,4 +1,4 @@
+-import { LogEvent } from "index";
++import { LogEvent } from ".";
+ 
+ type SystemDefinedLogPropertyKeys = "Level" | "Template" | "Timestamp";
+ 

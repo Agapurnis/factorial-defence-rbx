@@ -1,0 +1,13 @@
+diff --git a/node_modules/@rbxts/t/lib/t.d.ts b/node_modules/@rbxts/t/lib/t.d.ts
+index 6555992..a2c0d13 100644
+--- a/node_modules/@rbxts/t/lib/t.d.ts
++++ b/node_modules/@rbxts/t/lib/t.d.ts
+@@ -106,7 +106,7 @@ interface t {
+ 	Vector3int16: t.check<Vector3int16>;
+ 
+ 	/** checks if `value` is an EnumItem which belongs to `Enum`. */
+-	enum: <T extends { Name: string }>(Enum: Enum.EnumType<T>) => t.check<T>;
++	enum: <T extends Enum>(Enum: T) => t.check<Extract<T[keyof T], EnumItem>>;
+ 
+ 	// type functions
+ 	/** checks to see if `value == literalValue` */
