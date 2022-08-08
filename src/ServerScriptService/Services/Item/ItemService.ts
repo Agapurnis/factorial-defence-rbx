@@ -9,7 +9,7 @@ import { Dependency, Service } from "@flamework/core";
 import { PricingExchangeType } from "ReplicatedStorage/Enums/PricingExchangeType";
 import { Option, Result } from "@rbxts/rust-classes";
 import { CollectionTag } from "ReplicatedStorage/Enums/CollectionTag";
-import { GenericError } from "ReplicatedStorage/Networking/GenericError";
+import { GenericError } from "ReplicatedStorage/Enums/GenericError";
 import { ItemRegistry } from "ReplicatedStorage/Items/ItemRegistry";
 import { Currency } from "ReplicatedStorage/Enums/Currency";
 

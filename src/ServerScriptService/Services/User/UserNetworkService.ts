@@ -3,8 +3,8 @@ import type { UserDataService } from "./UserDataService";
 import type { UserDataServiceError } from "ReplicatedStorage/Enums/Errors/UserDataServiceError";
 import { CollectionService } from "@rbxts/services";
 import { CollectionTag } from "ReplicatedStorage/Enums/CollectionTag";
-import { GenericError } from "ReplicatedStorage/Networking/GenericError";
 import { Option, Result } from "@rbxts/rust-classes";
+import { GenericError } from "ReplicatedStorage/Enums/GenericError";
 import { Service } from "@flamework/core";
 import Remotes from "ReplicatedStorage/Networking";
 
@@ -33,7 +33,7 @@ export class UserNetworkService {
 				CollectionService.RemoveTag(player, CollectionTag.USER);
 
 				for (const [key] of pairs(player.GetAttributes())) {
-					player.SetAttribute(key as string, undefined);
+					player.SetAttribute(key , undefined);
 				}
 
 				if (FullClear) {

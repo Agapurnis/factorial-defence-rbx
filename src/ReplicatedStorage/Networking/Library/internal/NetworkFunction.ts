@@ -5,12 +5,6 @@ import { RunService } from "@rbxts/services";
 export type RemoteFunctionCallback <R = unknown> = Function<never, R>;
 
 // #region Methods
-interface ServerPredictable <T extends RemoteFunctionCallback> {
-	/**
-	 * @server
-	 */
-	Predict (player: Player, ...parameters: Parameters<T>): ReturnType<T>
-}
 interface ServerSetCallback <T extends RemoteFunctionCallback> {
 	/**
 	 * @server
@@ -32,12 +26,12 @@ interface ClientFireMethods <T extends RemoteFunctionCallback> {
 // #endregion Methods
 
 /**
- *
+ * A wrapper for a `RemoteFunction`.
  */
 export class NetworkFunction <
 	T extends NetworkScope,
-	V extends RemoteFunctionCallback
-> extends NetworkInvokable<T, "Function", V> {
+	U extends RemoteFunctionCallback
+> extends NetworkInvokable<T, "Function", U> {
 	/**
 	 * The class instance with traited methods typed.
 	 *
@@ -45,32 +39,10 @@ export class NetworkFunction <
 	 * @deprecated
 	 */
 	public __with_methods__= this as unknown as OverrideAdd<typeof this,
-		& LockToScope<"Server", T, ServerSetCallback<V>>
-		& LockToScope<"Server", T, ServerPredictable<V>>
-		& LockToScope<"Client", T, ServerFireMethods<V>>
-		& LockToScope<"Server", T, ClientFireMethods<V>>
+		& LockToScope<"Server", T, ServerSetCallback<U>>
+		& LockToScope<"Client", T, ServerFireMethods<U>>
+		& LockToScope<"Server", T, ClientFireMethods<U>>
 	>;
-
-	/**
-	 * @see {@link Predictable.Predict}
-	 * ---
-	 * {@inheritdoc Predictable.Predict}
-	 */
-	private Predict (player: Player, ...parameters: Parameters<V>): ReturnType<V> {
-		if (RunService.IsClient()) {
-			throw "Network event prediction is only available on the server!";
-		}
-
-		if (this.Specification.Scope === "Client") {
-			throw "Cannot predict a client function!";
-		}
-
-		if (this.Callback === undefined) {
-			throw "Callback not registered!";
-		}
-
-		return (this.Callback as (player: Player, ...parameters: Parameters<V>) => ReturnType<V>)(player, ...parameters);
-	}
 
 	/**
 	 * - @see {@link ServerFireMethods.Invoke|Server Invocation} for invocation from the server and execution on the client.
@@ -78,11 +50,8 @@ export class NetworkFunction <
 	 * ---
 	 * @remarks
 	 *  - Client function invocation is currently disabled.
-	 * ---
-	 * - {@inheritDoc ServerFireMethods.Invoke}
-	 * - {@inheritDoc ClientFireMethods.Invoke}
 	 */
-	private Invoke (...parameters: T extends "Server" ? [player: Player, ...parameters: Parameters<V>] : Parameters<V>): ReturnType<V> {
+	private Invoke (...parameters: T extends "Server" ? [player: Player, ...parameters: Parameters<U>] : Parameters<U>): ReturnType<U> {
 		if (this.Specification.Scope === "Client") {
 			throw `Client functions aren't currently supported! (${this.Name})`;
 		}
@@ -92,16 +61,26 @@ export class NetworkFunction <
 				throw `Attempted to invoke a server function on the server! Did you mean to use 'Predict'? (${this.Name})`;
 			}
 
-			return this.Network.Deserialize(this.Remote.InvokeServer(...(this.Network.Serialize(parameters) as [never]))) as ReturnType<V>;
+			const serialized = this.Network.Serialize(parameters) as [never];
+
+			if (this.Network.Configuration.ShouldValidatePriorToSending() && !this.Specification.Validators.ParameterTypeValidator(serialized)) {
+				return this.Network.Configuration.OnTypeError(this as NetworkInvokable, "ParametersType") as ReturnType<U>;
+			}
+
+			const result = this.Network.Deserialize(this.Remote.InvokeServer(...serialized)) as ReturnType<U>;
+
+			if (this.Network.Configuration.ShouldValidatePriorToSending() && !this.Specification.Validators.ReturnTypeValidator(result)) {
+				return this.Network.Configuration.OnTypeError(this as NetworkInvokable, "ReturnType") as ReturnType<U>;
+			}
+
+			return result;
 		}
 
 		throw `Network event prediction is only available on the server! (${this.Name})`;
 	}
 
 	/**
-	 * @see {@link ServerSetCallback.SetCallback}
-	 * ---
-	 * {@inheritdoc ServerSetCallback.SetCallback}
+	 * {@inheritDoc ServerSetCallback.SetCallback}
 	 */
 	private SetCallback (callback: typeof this.Callback): void {
 		if (
@@ -120,10 +99,26 @@ export class NetworkFunction <
 		if (RunService.IsClient()) {
 			throw `Client functions aren't currently supported! (${this.Name})`;
 		}	else {
-			this.Remote.OnServerInvoke = (...data: unknown[]) => {
+			this.Remote.OnServerInvoke = (player: Player, ...parameters: unknown[]) => {
 				assert(this.Callback, "callback does not exist despite previous check!");
 
-				return this.Network.Serialize(this.Callback(...(this.Network.Deserialize(data) as [never])));
+				const deserialized = this.Network.Deserialize(parameters) as [never];
+
+				if (!this.Specification.Validators.ParameterTypeValidator(deserialized)) {
+					print(1);
+					print(deserialized);
+					return this.Network.Serialize(this.Network.Configuration.OnTypeError(this as NetworkInvokable, "ParametersType"));
+				}
+
+				const result = this.Callback(player as never, ...deserialized);
+
+				if (this.Network.Configuration.ShouldValidateReturnType() && !this.Specification.Validators.ReturnTypeValidator(result)) {
+					print(2);
+					print(result);
+					return this.Network.Serialize(this.Network.Configuration.OnTypeError(this as NetworkInvokable, "ReturnType"));
+				}
+
+				return this.Network.Serialize(result);
 			};
 		}
 	}

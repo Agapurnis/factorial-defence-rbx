@@ -33,10 +33,13 @@ interface ClientFireMethods <T extends RemoteEventCallback> {
 }
 // #endregion Methods
 
+/**
+ * A wrapper for a `RemoteEvent`.
+ */
 export class NetworkEvent <
 	T extends NetworkScope,
-	V extends RemoteEventCallback
-> extends NetworkInvokable<T, "Event", V> {
+	U extends RemoteEventCallback
+> extends NetworkInvokable<T, "Event", U> {
 	/**
 	 * The class instance with traited methods typed.
 	 *
@@ -44,51 +47,49 @@ export class NetworkEvent <
 	 * @deprecated
 	 */
 	public __with_methods__= this as unknown as OverrideAdd<typeof this,
-		& LockToScope<"Server", T, ServerSetCallback<V>>
-		& LockToScope<"Client", T, ClientSetCallback<V>>
-		& LockToScope<"Client", T, ServerFireMethods<V>>
-		& LockToScope<"Server", T, ClientFireMethods<V>>
+		& LockToScope<"Server", T, ServerSetCallback<U>>
+		& LockToScope<"Client", T, ClientSetCallback<U>>
+		& LockToScope<"Client", T, ServerFireMethods<U>>
+		& LockToScope<"Server", T, ClientFireMethods<U>>
 	>;
 
 	/**
 	 * - @see {@link ServerFireMethods.Invoke|Server Invocation} for invocation from the server and execution on the client.
 	 * - @see {@link ClientFireMethods.Invoke|Client Invocation} for invocation from the client and execution on the server.
-	 * ---
-	 * - {@inheritDoc ServerFireMethods.Invoke}
-	 * - {@inheritDoc ClientFireMethods.Invoke}
 	 */
-	private Invoke (...parameters: T extends "Server" ? [player: Player, ...parameters: Parameters<V>] : Parameters<V>): ReturnType<V> {
-		if (this.Specification.Scope === "Client") {
-			if (RunService.IsServer()) {
-				throw `Attempted to invoke a client event on the client! (${this.Name})`;
-			}
+	private Invoke (...parameters: T extends "Server" ? [player: Player, ...parameters: Parameters<U>] : Parameters<U>): ReturnType<U> {
+		if (
+			(RunService.IsClient() && this.Specification.Scope === "Server") ||
+			(RunService.IsServer() && this.Specification.Scope === "Client")
+		) throw `Attempted to invoke on the wrong scope! (${this.Name})`;
 
-			return this.Remote.FireServer(...(this.Network.Serialize(parameters)) as [never]) as ReturnType<V>;
+		if (this.Network.Configuration.ShouldValidatePriorToSending() && !this.Specification.Validators.ParameterTypeValidator(parameters)) {
+			this.Network.Configuration.OnTypeError(this as NetworkInvokable, "ParametersType");
+		}
+
+
+		const player = (this.Specification.Scope === "Server" ? parameters.pop() as Player : undefined) as T extends "Server" ? Player : undefined;
+		const serialized = this.Network.Serialize(parameters) as [never];
+
+		if (this.Specification.Scope === "Client") {
+			return this.Remote.FireServer(...serialized) as ReturnType<U>;
 		}
 
 		if (this.Specification.Scope === "Server") {
-			if (RunService.IsServer()) {
-				throw `Attempted to invoke a server event on the server! (${this.Name})`;
-			}
-
-			return this.Remote.FireClient(...(this.Network.Serialize(parameters)) as [never]) as ReturnType<V>;
+			return this.Remote.FireClient(player!, ...serialized) as ReturnType<U>;
 		}
 
 		throw `Network event prediction is only available on the server! (${this.Name})`;
 	}
 
 	/**
-	 * @see {@link ServerSetCallback.SetCallback}
-	 * ---
-	 * {@inheritdoc ServerSetCallback.SetCallback}
+	 * {@inheritDoc ServerSetCallback.SetCallback}
 	 */
 	private SetCallback (callback: Exclude<typeof this.Callback, undefined>): void {
 		if (
 			(RunService.IsClient() && this.Specification.Scope === "Server") ||
 			(RunService.IsServer() && this.Specification.Scope === "Client")
-		) {
-			throw `Attempted to set a callback on the wrong scope! (${this.Name})`;
-		}
+		) throw `Attempted to set a callback on the wrong scope! (${this.Name})`;
 
 		if (this.Callback !== undefined) {
 			throw `Attempted to set a callback twice! (${this.Name})`;
@@ -97,12 +98,30 @@ export class NetworkEvent <
 		this.Callback = callback;
 
 		if (RunService.IsClient()) {
-			this.Remote.OnServerEvent.Connect((player, ...data: unknown[]) => {
-				assert(this.Callback); this.Callback(player as never, ...(this.Network.Deserialize(data) as [never]));
+			this.Remote.OnClientEvent.Connect((...parameters) => {
+				assert(this.Callback, "callback is undefined despite being defined earlier!");
+
+				const deserialized = this.Network.Deserialize(parameters) as [never];
+
+				if (this.Specification.Validators.ParameterTypeValidator(deserialized)) {
+					// Even if the server doesn't meet the critera we'll attempt to salvage things by trusting the server and running the callback.
+					this.Network.Configuration.OnTypeError(this as NetworkInvokable, "ParametersType");
+				}
+
+				this.Callback(...deserialized);
 			});
 		}	else {
-			this.Remote.OnClientEvent.Connect((...data) => {
-				assert(this.Callback); this.Callback(...(this.Network.Deserialize(data) as [never]));
+			this.Remote.OnServerEvent.Connect((player, ...parameters: unknown[]) => {
+				assert(this.Callback, "callback is undefined despite being defined earlier!");
+
+				const deserialized = this.Network.Deserialize(parameters) as [never];
+
+				if (this.Specification.Validators.ParameterTypeValidator(deserialized)) {
+					// We just won't fire the callback if it doesn't meet the criteria.
+					return this.Network.Configuration.OnTypeError(this as NetworkInvokable, "ParametersType");
+				}
+
+				this.Callback(player as never, ...deserialized);
 			});
 		}
 	}

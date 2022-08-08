@@ -1,6 +1,6 @@
 import { Result } from "@rbxts/rust-classes";
 import { Service } from "@flamework/core";
-import { GenericError } from "ReplicatedStorage/Networking/GenericError";
+import { GenericError } from "ReplicatedStorage/Enums/GenericError";
 import type { ItemMovementService } from "ServerScriptService/Services/Item/ItemMovementService";
 import type { ItemService } from "ServerScriptService/Services/Item/ItemService";
 import type { UserService } from "ServerScriptService/Services/User/UserService";

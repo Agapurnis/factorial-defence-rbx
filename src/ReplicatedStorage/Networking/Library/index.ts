@@ -1,7 +1,10 @@
+import type { NetworkConfiguration, PartialNetworkConfiguration } from "./internal/config";
+import { FillConfigurationTemplate } from "./internal/config";
 import type { RemoteFunctionCallback } from "./internal/NetworkFunction";
 import type { RemoteEventCallback } from "./internal/NetworkEvent";
 import type { Function } from "./internal";
 import { NetworkInvokableSpecification } from "./internal/base";
+import { DefaultNetworkConfiguration } from "./internal/config";
 import { NetworkFunction } from "./internal/NetworkFunction";
 import { NetworkEvent } from "./internal/NetworkEvent";
 
@@ -116,6 +119,16 @@ export class Network {
 
 		return input;
 	}
+
+	/**
+	 * Registers a serializer/deserializer pair.
+	 */
+	public AddSerde <U, V> (serde: [constructor: unknown, implementation: SerdeImplementation<U, V>]) {
+		const [_constructor, implementation] = serde;
+		if (this.Serde.has(tostring(_constructor))) throw `Serializer/deserializer for '${tostring(_constructor)}' already exists.`;
+		this.Serde.set(tostring(_constructor), implementation as SerdeImplementation<unknown, unknown>);
+		return this;
+	}
 	// #endregion Serialization
 	// #region Activities
 	/**
@@ -164,14 +177,10 @@ export class Network {
 	}
 	// #endregion Activities
 
-	/**
-	 * Registers a serializer/deserializer pair.
-	 */
-	public AddSerde <U, V> (serde: [constructor: unknown, implementation: SerdeImplementation<U, V>]) {
-		const [_constructor, implementation] = serde;
-		if (this.Serde.has(tostring(_constructor))) throw `Serializer/deserializer for '${tostring(_constructor)}' already exists.`;
-		this.Serde.set(tostring(_constructor), implementation as SerdeImplementation<unknown, unknown>);
-		return this;
+	public readonly Configuration: NetworkConfiguration = DefaultNetworkConfiguration;
+
+	constructor (configuration: PartialNetworkConfiguration = {}) {
+		this.Configuration = FillConfigurationTemplate(configuration, DefaultNetworkConfiguration);
 	}
 
 	/**

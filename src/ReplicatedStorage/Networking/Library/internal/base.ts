@@ -5,11 +5,22 @@ import { RunService } from "@rbxts/services";
 
 type RemoteCallback = Function<never>;
 
+/**
+ * The class used to describe a remote function or event.
+ */
 export class NetworkInvokableSpecification <
 	T extends NetworkScope = NetworkScope,
 	U extends NetworkInvokableType = NetworkInvokableType,
 	V extends RemoteCallback = RemoteCallback
 > {
+	/**
+	 * The validators for callback parameters and return types.
+	 */
+	public readonly Validators: {
+		ParameterTypeValidator: (parameters: unknown[]) => parameters is Parameters<V>,
+		ReturnTypeValidator: U extends "Event" ? never : (value: unknown) => value is ReturnType<V>
+	};
+
 	constructor (
 		/**
 		 * Where the function is executed.
@@ -22,13 +33,22 @@ export class NetworkInvokableSpecification <
 		/**
 		 * The validators for callback parameters and return types.
 		 */
-		public readonly Validators?: {
+		Validators?: {
 			ParameterTypeValidator?: (parameters: unknown[]) => parameters is Parameters<V>,
 			ReturnTypeValidator?: U extends "Event" ? never : (value: unknown) => value is ReturnType<V>
 		}
-	) {}
+	) {
+		const FallbackParameterTypeValidator = (parameters: unknown[]): parameters is Parameters<V> => true;
+		const FallbackReturnTypeValidator = (this.Type === "Event" ? undefined as never : (value: unknown): value is ReturnType<V> => true) as U extends "Event" ? never : (value: unknown) => value is ReturnType<V>;
+		this.Validators = (Validators ?? {}) as typeof this.Validators;
+		this.Validators.ParameterTypeValidator ??= FallbackParameterTypeValidator;
+		this.Validators.ReturnTypeValidator ??= FallbackReturnTypeValidator;
+	}
 }
 
+/**
+ * The base class a remote wrawpper should extend.
+ */
 export abstract class NetworkInvokable <
 	T extends NetworkScope = NetworkScope,
 	U extends NetworkInvokableType = NetworkInvokableType,
@@ -37,7 +57,7 @@ export abstract class NetworkInvokable <
 	/**
 	 * The actual remote instance.
 	 */
-	protected readonly Remote: U extends "Function"
+	public readonly Remote: U extends "Function"
 		? RemoteFunction
 		: RemoteEvent;
 
@@ -57,22 +77,21 @@ export abstract class NetworkInvokable <
 	constructor (
 		protected readonly Specification: NetworkInvokableSpecification<T, U, V>,
 		protected readonly Network: Network,
-		protected readonly Name: string,
+		public readonly Name: string,
 	) {
-		if (RunService.IsServer()) {
+		type Remote = U extends "Function" ? RemoteFunction : RemoteEvent;
+
+		if (RunService.IsClient()) {
+			// The remote is created on the server, so wait for it to be initialized.
+			this.Remote = RemotesFolder.WaitForChild(Name) as Remote;
+		} else {
 			this.Remote = (Specification.Type === "Function"
 				? new Instance("RemoteFunction")
 				: new Instance("RemoteEvent")
-			) as U extends "Function"
-				? RemoteFunction
-				: RemoteEvent;
+			) as Remote;
 
 			this.Remote.Name = Name;
 			this.Remote.Parent = RemotesFolder;
-		} else {
-			this.Remote = RemotesFolder.WaitForChild(Name) as U extends "Function"
-				? RemoteFunction
-				: RemoteEvent;
 		}
 	}
 }
