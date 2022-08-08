@@ -11,7 +11,8 @@
     "watch": "rbxtsc -w",
     "serve": "rojo serve",
     "clean": "rm -rf out && rm ./flamework.build",
-    "prepare": "npx patch-package --patch-dir ./dev/patches && husky install",
+    "patch": "npx patch-package --patch-dir ./dev/patches && node ./dev/scripts/fix-basicstate.js",
+    "prepare": "npm run patch && husky install",
     "lint": "npx eslint src/",
     "lint:staged": "npx lint-staged -c ./lint-staged.config.json"
   },
