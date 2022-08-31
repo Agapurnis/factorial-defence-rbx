@@ -62,7 +62,7 @@ export class LoggerService {
 	}
 
 	/**
-	 * Reteurns a logger that doesn't actually log anything.
+	 * Returns a logger that doesn't actually log anything.
 	 */
 	public VoidLogger <T> (properties: Omit<LogAdditionalDetails, "Identifier"> & Partial<Pick<LogAdditionalDetails, "Identifier">> = {}) {
 		return LoggerService.VOID_LOGGER;
